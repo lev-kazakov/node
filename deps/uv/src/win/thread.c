@@ -111,7 +111,6 @@ struct thread_ctx {
 static UINT __stdcall uv__thread_start(void* arg) {
   struct thread_ctx *ctx_p;
   struct thread_ctx ctx;
-
   ctx_p = arg;
   ctx = *ctx_p;
   uv__free(ctx_p);
@@ -120,7 +119,6 @@ static UINT __stdcall uv__thread_start(void* arg) {
   uv_key_set(&uv__current_thread_key, (void*) ctx.self);
 
   ctx.entry(ctx.arg);
-
   return 0;
 }
 
@@ -139,6 +137,8 @@ int uv_thread_create(uv_thread_t *tid, void (*entry)(void *arg), void *arg) {
 
   /* Create the thread in suspended state so we have a chance to pass
    * its own creation handle to it */   
+  // printf("SPAWN THREAD\n\n");
+
   thread = (HANDLE) _beginthreadex(NULL,
                                    0,
                                    uv__thread_start,

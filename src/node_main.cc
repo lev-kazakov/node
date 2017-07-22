@@ -24,8 +24,13 @@
 #ifdef _WIN32
 #include <VersionHelpers.h>
 #include <WinError.h>
+#include <iostream>
 
 int wmain(int argc, wchar_t *wargv[]) {
+  printf("MAIN THREAD                              |  THREAD POOL\n"); // print_header
+  printf("                                         |\n"); // print_empty_line
+  demo_print("BOOTSTRAP", INIT | MAIN);
+
   if (!IsWindows7OrGreater()) {
     fprintf(stderr, "This application is only supported on Windows 7, "
                     "Windows Server 2008 R2, or higher.");
@@ -67,7 +72,10 @@ int wmain(int argc, wchar_t *wargv[]) {
   }
   argv[argc] = nullptr;
   // Now that conversion is done, we can finally start.
-  return node::Start(argc, argv);
+  int exit_code = node::Start(argc, argv);
+  std::cout << "\npress any key to exit...";
+  std::cin.get();
+  return exit_code;
 }
 #else
 // UNIX

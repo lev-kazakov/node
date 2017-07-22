@@ -384,6 +384,8 @@ INLINE static int fs__readlink_handle(HANDLE handle, char** target_ptr,
 
 
 void fs__open(uv_fs_t* req) {
+  printf("    FS OPEN -- START\n\n");
+
   DWORD access;
   DWORD share;
   DWORD disposition;
@@ -480,6 +482,7 @@ void fs__open(uv_fs_t* req) {
   /* Setting this flag makes it possible to open a directory. */
   attributes |= FILE_FLAG_BACKUP_SEMANTICS;
 
+  printf("    FS OPEN -- BLOCK, SUSPEND\n\n");
   file = CreateFileW(req->file.pathw,
                      access,
                      share,
@@ -487,6 +490,8 @@ void fs__open(uv_fs_t* req) {
                      disposition,
                      attributes,
                      NULL);
+  printf("    FS OPEN -- WAKE UP\n\n");
+
   if (file == INVALID_HANDLE_VALUE) {
     DWORD error = GetLastError();
     if (error == ERROR_FILE_EXISTS && (flags & _O_CREAT) &&
@@ -517,6 +522,7 @@ void fs__open(uv_fs_t* req) {
   }
 
   SET_REQ_RESULT(req, fd);
+  printf("    FS OPEN -- END\n\n\n");
   return;
 
  einval:
@@ -524,13 +530,17 @@ void fs__open(uv_fs_t* req) {
 }
 
 void fs__close(uv_fs_t* req) {
+  printf("    FS CLOSE -- START\n\n");
   int fd = req->file.fd;
   int result;
 
   VERIFY_FD(fd, req);
 
-  if (fd > 2)
+  if (fd > 2) {
+    printf("    FS CLOSE -- BLOCK, SUSPEND\n\n");
     result = _close(fd);
+    printf("    FS CLOSE -- WAKE UP\n\n");
+  }
   else
     result = 0;
 
@@ -543,10 +553,12 @@ void fs__close(uv_fs_t* req) {
   } else {
     req->result = 0;
   }
+  printf("    FS CLOSE -- END\n\n\n");
 }
 
 
 void fs__read(uv_fs_t* req) {
+  printf("    FS READ -- START\n\n");
   int fd = req->file.fd;
   int64_t offset = req->fs.info.offset;
   HANDLE handle;
@@ -593,11 +605,13 @@ void fs__read(uv_fs_t* req) {
       overlapped.OffsetHigh = offset_.HighPart;
     }
 
+    printf("    FS READ -- BLOCK, SUSPEND\n\n");
     result = ReadFile(handle,
                       req->fs.info.bufs[index].base,
                       req->fs.info.bufs[index].len,
                       &incremental_bytes,
                       overlapped_ptr);
+    printf("    FS READ -- WAKE UP\n\n");
     bytes += incremental_bytes;
     ++index;
   } while (result && index < req->fs.info.nbufs);
@@ -615,6 +629,7 @@ void fs__read(uv_fs_t* req) {
       SET_REQ_WIN32_ERROR(req, error);
     }
   }
+  printf("    FS READ -- END\n\n\n");
 }
 
 
@@ -1249,6 +1264,7 @@ static void fs__lstat(uv_fs_t* req) {
 
 
 static void fs__fstat(uv_fs_t* req) {
+  printf("    FS STAT -- START\n\n");
   int fd = req->file.fd;
   HANDLE handle;
 
@@ -1261,13 +1277,16 @@ static void fs__fstat(uv_fs_t* req) {
     return;
   }
 
+  printf("    FS STAT -- BLOCK, SUSPEND\n\n");
   if (fs__stat_handle(handle, &req->statbuf) != 0) {
     SET_REQ_WIN32_ERROR(req, GetLastError());
     return;
   }
+  printf("    FS STAT -- WAKE UP\n\n");
 
   req->ptr = &req->statbuf;
   req->result = 0;
+  printf("    FS STAT -- END\n\n\n");
 }
 
 
@@ -1884,6 +1903,7 @@ static void uv__fs_work(struct uv__work* w) {
   }
 }
 
+const char* FS_TYPE_NAME[] = { "CUSTOM", "OPEN", "CLOSE", "READ", "WRITE", "SENDFILE", "STAT", "LSTAT", "FSTAT" };
 
 static void uv__fs_done(struct uv__work* w, int status) {
   uv_fs_t* req;
@@ -1896,7 +1916,10 @@ static void uv__fs_done(struct uv__work* w, int status) {
     req->result = UV_ECANCELED;
   }
 
+  char* type = FS_TYPE_NAME[req->fs_type];
+  printf("FS %s -- RUN CALLBACK -- START\n\n", type);
   req->cb(req);
+  printf("FS %s -- RUN CALLBACK -- END\n\n\n", type);
 }
 
 
@@ -1942,9 +1965,11 @@ int uv_fs_open(uv_loop_t* loop, uv_fs_t* req, const char* path, int flags,
   req->fs.info.mode = mode;
 
   if (cb) {
+    printf("FS OPEN -- QUEUE THREAD POOL JOB     |\n\n");
     QUEUE_FS_TP_JOB(loop, req);
     return 0;
   } else {
+    req->data = "sync";
     fs__open(req);
     return req->result;
   }
@@ -1956,6 +1981,7 @@ int uv_fs_close(uv_loop_t* loop, uv_fs_t* req, uv_file fd, uv_fs_cb cb) {
   req->file.fd = fd;
 
   if (cb) {
+    printf("FS CLOSE -- QUEUE WORK\n\n");
     QUEUE_FS_TP_JOB(loop, req);
     return 0;
   } else {
@@ -1992,6 +2018,7 @@ int uv_fs_read(uv_loop_t* loop,
   req->fs.info.offset = offset;
 
   if (cb) {
+    printf("FS READ -- QUEUE WORK\n\n");
     QUEUE_FS_TP_JOB(loop, req);
     return 0;
   } else {
@@ -2314,6 +2341,7 @@ int uv_fs_fstat(uv_loop_t* loop, uv_fs_t* req, uv_file fd, uv_fs_cb cb) {
   req->file.fd = fd;
 
   if (cb) {
+    printf("FS STAT -- QUEUE WORK\n\n");
     QUEUE_FS_TP_JOB(loop, req);
     return 0;
   } else {

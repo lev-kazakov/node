@@ -482,6 +482,8 @@ int uv_loop_alive(const uv_loop_t* loop) {
 
 
 int uv_run(uv_loop_t *loop, uv_run_mode mode) {
+  printf("EVENT LOOP -- ENTER -- MODE = %s\n\n\n", mode == UV_RUN_ONCE ? "RUN_ONCE" : "RUN_NOWAIT");
+
   DWORD timeout;
   int r;
   int ran_pending;
@@ -493,25 +495,44 @@ int uv_run(uv_loop_t *loop, uv_run_mode mode) {
     poll = &uv_poll;
 
   r = uv__loop_alive(loop);
-  if (!r)
+  if (!r) {
+    printf("EVENT LOOP -- NOTING TO RUN!\n\n\n");
     uv_update_time(loop);
+  }
 
   while (r != 0 && loop->stop_flag == 0) {
     uv_update_time(loop);
+    printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- START\n\n\n");
     uv_process_timers(loop);
+    printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- END\n\n\n");
 
+    printf("EVENT LOOP -- RUN PENDING CALLBACKS -- START\n\n\n");
     ran_pending = uv_process_reqs(loop);
+    printf("EVENT LOOP -- RUN PENDING CALLBACKS -- END\n\n\n");
+
+    // printf("EVENT LOOP -- RUN IDLE CALLBACKS -- START\n\n\n");
     uv_idle_invoke(loop);
+    // printf("EVENT LOOP -- RUN IDLE CALLBACKS -- END\n\n\n");
+
+    // printf("EVENT LOOP -- RUN PREPARE CALLBACKS -- START\n\n\n");
     uv_prepare_invoke(loop);
+    // printf("EVENT LOOP -- RUN PREPARE CALLBACKS -- END\n\n\n");
 
     timeout = 0;
     if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
       timeout = uv_backend_timeout(loop);
 
+    printf("EVENT LOOP -- POLL FOR I/O -- BLOCK, SUSPEND -- ACTIVE_HANDLES = %d, TIMEOUT = %d\n\n", loop->active_handles, timeout);
     (*poll)(loop, timeout);
+    printf("EVENT LOOP -- POLL FOR I/O -- WAKE UP\n\n\n");
 
-    uv_check_invoke(loop);
+    printf("EVENT LOOP -- RUN CHECK CALLBACKS -- START\n\n\n");
+    uv_check_invoke(loop); // run immediates
+    printf("EVENT LOOP -- RUN CHECK CALLBACKS -- END\n\n\n");
+
+    // printf("EVENT LOOP -- RUN CLOSE CALLBACKS -- START\n\n\n");
     uv_process_endgames(loop);
+    // printf("EVENT LOOP -- RUN CLOSE CALLBACKS -- END\n\n\n");
 
     if (mode == UV_RUN_ONCE) {
       /* UV_RUN_ONCE implies forward progress: at least one callback must have
@@ -522,7 +543,9 @@ int uv_run(uv_loop_t *loop, uv_run_mode mode) {
        * UV_RUN_NOWAIT makes no guarantees about progress so it's omitted from
        * the check.
        */
+      printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- START\n\n\n");
       uv_process_timers(loop);
+      printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- END\n\n\n");
     }
 
     r = uv__loop_alive(loop);
@@ -536,6 +559,7 @@ int uv_run(uv_loop_t *loop, uv_run_mode mode) {
   if (loop->stop_flag != 0)
     loop->stop_flag = 0;
 
+  printf("EVENT LOOP -- EXIT\n\n\n");
   return r;
 }
 

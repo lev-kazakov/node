@@ -47,6 +47,7 @@ extern "C" {
 
 #include "uv-errno.h"
 #include "uv-version.h"
+#include "uv-demo-print.h"
 #include <stddef.h>
 #include <stdio.h>
 
@@ -61,6 +62,8 @@ extern "C" {
 #else
 # include "uv-unix.h"
 #endif
+
+#include <stdio.h>
 
 /* Expand this list if necessary. */
 #define UV_ERRNO_MAP(XX)                                                      \

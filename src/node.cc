@@ -1370,9 +1370,12 @@ MaybeLocal<Value> MakeCallback(Environment* env,
     return ret;
   }
 
+  printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- START\n\n\n");
   if (env->tick_callback_function()->Call(process, 0, nullptr).IsEmpty()) {
-    return Undefined(env->isolate());
+    printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- END\n\n\n");
+	return Undefined(env->isolate());
   }
+  printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- END\n\n\n");
 
   return ret;
 }
@@ -3610,7 +3613,12 @@ void LoadEnvironment(Environment* env) {
   // who do not like how bootstrap_node.js sets up the module system but do
   // like Node's I/O bindings may want to replace 'f' with their own function.
   Local<Value> arg = env->process_object();
+
+  printf("BOOTSTRAP -- END\n\n\n");
+
+  printf("RUN MAIN MODULE -- START\n\n\n");
   f->Call(Null(env->isolate()), 1, &arg);
+  printf("\nRUN MAIN MODULE -- END\n\n\n");
 }
 
 static void PrintHelp() {
@@ -4544,7 +4552,10 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
 
       if (more == false) {
         v8_platform.PumpMessageLoop(isolate);
+
+        printf("EmitBeforeExit -- START\n\n\n");
         EmitBeforeExit(&env);
+        printf("EmitBeforeExit -- END\n\n\n");
 
         // Emit `beforeExit` if the loop became alive either after emitting
         // event, or after running some callbacks.
@@ -4557,7 +4568,9 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
 
   env.set_trace_sync_io(false);
 
+  printf("EmitExit -- START\n\n\n");
   const int exit_code = EmitExit(&env);
+  printf("EmitExit -- END\n\n\n");
   RunAtExit(&env);
   uv_key_delete(&thread_local_env);
 

@@ -75,6 +75,7 @@ int uv__getaddrinfo_translate_error(int sys_err) {
 
 
 static void uv__getaddrinfo_work(struct uv__work* w) {
+  printf("    GETADDRINFO -- WORK START\n\n");
   uv_getaddrinfo_t* req;
   struct addrinfoW* hints;
   int err;
@@ -82,8 +83,11 @@ static void uv__getaddrinfo_work(struct uv__work* w) {
   req = container_of(w, uv_getaddrinfo_t, work_req);
   hints = req->addrinfow;
   req->addrinfow = NULL;
+  printf("    GETADDRINFO -- BLOCK, SUSPEND\n\n");
   err = GetAddrInfoW(req->node, req->service, hints, &req->addrinfow);
+  printf("    GETADDRINFO -- WAKE UP\n\n");
   req->retcode = uv__getaddrinfo_translate_error(err);
+  printf("    GETADDRINFO -- WORK END\n\n\n");
 }
 
 
@@ -223,8 +227,10 @@ complete:
   uv__req_unregister(req->loop, req);
 
   /* finally do callback with converted result */
+  printf("GETADDRINFO -- RUN CALLBACK -- START\n\n");
   if (req->getaddrinfo_cb)
     req->getaddrinfo_cb(req, req->retcode, req->addrinfo);
+  printf("GETADDRINFO -- RUN CALLBACK -- END\n\n\n");
 }
 
 
@@ -362,6 +368,7 @@ int uv_getaddrinfo(uv_loop_t* loop,
   uv__req_register(loop, req);
 
   if (getaddrinfo_cb) {
+    printf("GETADDRINFO -- QUEUE WORK\n\n\n");
     uv__work_submit(loop,
                     &req->work_req,
                     uv__getaddrinfo_work,

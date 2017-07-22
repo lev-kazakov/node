@@ -73,6 +73,7 @@
         'include/uv-errno.h',
         'include/uv-threadpool.h',
         'include/uv-version.h',
+		'include/uv-demo-print.h',
         'src/fs-poll.c',
         'src/heap-inl.h',
         'src/inet.c',
@@ -80,7 +81,8 @@
         'src/threadpool.c',
         'src/uv-common.c',
         'src/uv-common.h',
-        'src/version.c'
+        'src/version.c',
+		'src/demo-print.c'
       ],
       'conditions': [
         [ 'OS=="win"', {
