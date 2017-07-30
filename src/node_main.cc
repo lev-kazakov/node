@@ -29,7 +29,7 @@
 int wmain(int argc, wchar_t *wargv[]) {
   printf("MAIN THREAD                              |  THREAD POOL\n"); // print_header
   printf("                                         |\n"); // print_empty_line
-  demo_print("BOOTSTRAP", INIT | MAIN);
+  uv_demo_print("BOOTSTRAP", INIT | MAIN);
 
   if (!IsWindows7OrGreater()) {
     fprintf(stderr, "This application is only supported on Windows 7, "
@@ -94,6 +94,8 @@ namespace node {
 }  // namespace node
 
 int main(int argc, char *argv[]) {
+  uv_demo_print("", HEADER);
+  uv_demo_print("BOOTSTRAP", INIT | MAIN);
 #if defined(__linux__)
   char** envp = environ;
   while (*envp++ != nullptr) {}

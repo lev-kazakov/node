@@ -3614,11 +3614,11 @@ void LoadEnvironment(Environment* env) {
   // like Node's I/O bindings may want to replace 'f' with their own function.
   Local<Value> arg = env->process_object();
 
-  printf("BOOTSTRAP -- END\n\n\n");
+  uv_demo_print("BOOTSTRAP", DONE | MAIN);
 
-  printf("RUN MAIN MODULE -- START\n\n\n");
+  uv_demo_print("RUN MAIN MODULE", INIT | MAIN);
   f->Call(Null(env->isolate()), 1, &arg);
-  printf("\nRUN MAIN MODULE -- END\n\n\n");
+  uv_demo_print("RUN MAIN MODULE", DONE | MAIN);
 }
 
 static void PrintHelp() {

@@ -4,13 +4,15 @@
 #include <stdio.h>
 
 enum {
-  INIT = 1 << 0,  // enter
-  DONE = 1 << 1, // exit
+  HEADER      = 1 << 0,  // enter
 
-  MAIN = 1 << 2,
-  THREAD_POOL = 1 << 3
+  INIT        = 1 << 1,  // enter
+  DONE        = 1 << 2, // exit
+
+  MAIN        = 1 << 3,
+  THREAD_POOL = 1 << 4
 };
 
-void demo_print(const char * const string, const unsigned int flags);
+void uv_demo_print(const char *const message, const unsigned int flags);
 
 #endif /* UV_DEMO_PRINT_H */
