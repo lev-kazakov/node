@@ -20344,6 +20344,21 @@ deps/uv/src/uv-common.s:
 .PHONY : deps/uv/src/uv-common.s
 
 # target to build an object file
+deps/uv/src/uv-demo-print.o:
+	$(MAKE) -f CMakeFiles/libuv.dir/build.make CMakeFiles/libuv.dir/deps/uv/src/uv-demo-print.o
+.PHONY : deps/uv/src/uv-demo-print.o
+
+# target to preprocess a source file
+deps/uv/src/uv-demo-print.i:
+	$(MAKE) -f CMakeFiles/libuv.dir/build.make CMakeFiles/libuv.dir/deps/uv/src/uv-demo-print.i
+.PHONY : deps/uv/src/uv-demo-print.i
+
+# target to generate assembly for a file
+deps/uv/src/uv-demo-print.s:
+	$(MAKE) -f CMakeFiles/libuv.dir/build.make CMakeFiles/libuv.dir/deps/uv/src/uv-demo-print.s
+.PHONY : deps/uv/src/uv-demo-print.s
+
+# target to build an object file
 deps/uv/src/version.o:
 	$(MAKE) -f CMakeFiles/libuv.dir/build.make CMakeFiles/libuv.dir/deps/uv/src/version.o
 .PHONY : deps/uv/src/version.o
@@ -36114,6 +36129,9 @@ help:
 	@echo "... deps/uv/src/uv-common.o"
 	@echo "... deps/uv/src/uv-common.i"
 	@echo "... deps/uv/src/uv-common.s"
+	@echo "... deps/uv/src/uv-demo-print.o"
+	@echo "... deps/uv/src/uv-demo-print.i"
+	@echo "... deps/uv/src/uv-demo-print.s"
 	@echo "... deps/uv/src/version.o"
 	@echo "... deps/uv/src/version.i"
 	@echo "... deps/uv/src/version.s"

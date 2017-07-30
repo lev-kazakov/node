@@ -82,7 +82,7 @@
         'src/uv-common.c',
         'src/uv-common.h',
         'src/version.c',
-		'src/demo-print.c'
+		'src/uv-demo-print.c'
       ],
       'conditions': [
         [ 'OS=="win"', {

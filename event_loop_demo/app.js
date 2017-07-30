@@ -60,7 +60,7 @@ socket.connect(8080, function() {
 });
 
 console.log("performing file I/O...\n\n")
-fs.readFile('./file.txt', function (err, data) {
+fs.readFile('./event_loop_demo/file.txt', function (err, data) {
   console.log(`\nfile contents: "${data}".\n`)
 })
 
