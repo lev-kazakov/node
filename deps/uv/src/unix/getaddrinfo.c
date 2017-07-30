@@ -95,12 +95,18 @@ int uv__getaddrinfo_translate_error(int sys_err) {
 
 
 static void uv__getaddrinfo_work(struct uv__work* w) {
+  printf("    GETADDRINFO -- WORK START\n\n");
   uv_getaddrinfo_t* req;
   int err;
 
   req = container_of(w, uv_getaddrinfo_t, work_req);
+
+  printf("    GETADDRINFO -- BLOCK, SUSPEND\n\n");
   err = getaddrinfo(req->hostname, req->service, req->hints, &req->addrinfo);
+  printf("    GETADDRINFO -- WAKE UP\n\n");
+
   req->retcode = uv__getaddrinfo_translate_error(err);
+  printf("    GETADDRINFO -- WORK END\n\n\n");
 }
 
 
@@ -129,8 +135,11 @@ static void uv__getaddrinfo_done(struct uv__work* w, int status) {
     req->retcode = UV_EAI_CANCELED;
   }
 
-  if (req->cb)
+  printf("GETADDRINFO -- RUN CALLBACK -- START\n\n");
+  if (req->cb) {
     req->cb(req, req->retcode, req->addrinfo);
+  }
+  printf("GETADDRINFO -- RUN CALLBACK -- END\n\n\n");
 }
 
 
@@ -183,6 +192,7 @@ int uv_getaddrinfo(uv_loop_t* loop,
     req->hostname = memcpy(buf + len, hostname, hostname_len);
 
   if (cb) {
+    printf("GETADDRINFO -- QUEUE WORK\n\n\n");
     uv__work_submit(loop,
                     &req->work_req,
                     uv__getaddrinfo_work,

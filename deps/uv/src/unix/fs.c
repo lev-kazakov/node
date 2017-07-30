@@ -63,8 +63,9 @@
 #define INIT(subtype)                                                         \
   do {                                                                        \
     req->type = UV_FS;                                                        \
-    if (cb != NULL)                                                           \
+    if (cb != NULL) {                                                         \
       uv__req_init(loop, req, UV_FS);                                         \
+    }                                                                         \
     req->fs_type = UV_FS_ ## subtype;                                         \
     req->result = 0;                                                          \
     req->ptr = NULL;                                                          \
@@ -112,13 +113,15 @@
   }                                                                           \
   while (0)
 
-#define POST                                                                  \
+#define POST(subtype)                                                         \
   do {                                                                        \
     if (cb != NULL) {                                                         \
+      printf("FS " #subtype " -- QUEUE THREAD POOL JOB     |\n\n");           \
       uv__work_submit(loop, &req->work_req, uv__fs_work, uv__fs_done);        \
       return 0;                                                               \
     }                                                                         \
     else {                                                                    \
+      printf("FS " #subtype " -- DO FS JOB SYNC            |\n\n");           \
       uv__fs_work(&req->work_req);                                            \
       return req->result;                                                     \
     }                                                                         \
@@ -251,6 +254,8 @@ static ssize_t uv__fs_mkdtemp(uv_fs_t* req) {
 
 
 static ssize_t uv__fs_open(uv_fs_t* req) {
+  printf("    FS OPEN -- START\n\n");
+
   static int no_cloexec_support;
   int r;
 
@@ -269,7 +274,9 @@ static ssize_t uv__fs_open(uv_fs_t* req) {
   if (req->cb != NULL)
     uv_rwlock_rdlock(&req->loop->cloexec_lock);
 
+  printf("    FS OPEN -- BLOCK, SUSPEND\n\n");
   r = open(req->path, req->flags, req->mode);
+  printf("    FS OPEN -- WAKE UP\n\n");
 
   /* In case of failure `uv__cloexec` will leave error in `errno`,
    * so it is enough to just set `r` to `-1`.
@@ -284,11 +291,13 @@ static ssize_t uv__fs_open(uv_fs_t* req) {
   if (req->cb != NULL)
     uv_rwlock_rdunlock(&req->loop->cloexec_lock);
 
+  printf("    FS OPEN -- END\n\n\n");
   return r;
 }
 
 
 static ssize_t uv__fs_read(uv_fs_t* req) {
+  printf("    FS READ -- START\n\n");
 #if defined(__linux__)
   static int no_preadv;
 #endif
@@ -304,13 +313,20 @@ static ssize_t uv__fs_read(uv_fs_t* req) {
   }
 #endif /* defined(_AIX) */
   if (req->off < 0) {
-    if (req->nbufs == 1)
+    if (req->nbufs == 1) {
+      printf("    FS READ -- BLOCK, SUSPEND\n\n");
       result = read(req->file, req->bufs[0].base, req->bufs[0].len);
-    else
-      result = readv(req->file, (struct iovec*) req->bufs, req->nbufs);
+      printf("    FS READ -- WAKE UP\n\n");
+    } else {
+      printf("    FS READ -- BLOCK, SUSPEND\n\n");
+      result = readv(req->file, (struct iovec *) req->bufs, req->nbufs);
+      printf("    FS READ -- WAKE UP\n\n");
+    }
   } else {
     if (req->nbufs == 1) {
+      printf("    FS READ -- BLOCK, SUSPEND\n\n");
       result = pread(req->file, req->bufs[0].base, req->bufs[0].len, req->off);
+      printf("    FS READ -- WAKE UP\n\n");
       goto done;
     }
 
@@ -329,10 +345,12 @@ static ssize_t uv__fs_read(uv_fs_t* req) {
       result = 1;
       do {
         if (req->bufs[index].len > 0) {
+          printf("    FS READ -- BLOCK, SUSPEND\n\n");
           result = pread(req->file,
                          req->bufs[index].base,
                          req->bufs[index].len,
                          req->off + nread);
+          printf("    FS READ -- WAKE UP\n\n");
           if (result > 0)
             nread += result;
         }
@@ -357,6 +375,7 @@ static ssize_t uv__fs_read(uv_fs_t* req) {
   }
 
 done:
+  printf("    FS READ -- END\n\n\n");
   return result;
 }
 
@@ -868,13 +887,18 @@ static int uv__fs_lstat(const char *path, uv_stat_t *buf) {
 
 
 static int uv__fs_fstat(int fd, uv_stat_t *buf) {
+  printf("    FS STAT -- START\n\n");
   struct stat pbuf;
   int ret;
 
+  printf("    FS STAT -- BLOCK, SUSPEND\n\n");
   ret = fstat(fd, &pbuf);
+  printf("    FS STAT -- WAKE UP\n\n");
+
   if (ret == 0)
     uv__to_stat(&pbuf, buf);
 
+  printf("    FS STAT -- END\n\n\n");
   return ret;
 }
 
@@ -987,7 +1011,7 @@ static void uv__fs_work(struct uv__work* w) {
   }
 }
 
-
+const char* FS_TYPE_NAME[] = { "CUSTOM", "OPEN", "CLOSE", "READ", "WRITE", "SENDFILE", "STAT", "LSTAT", "FSTAT" };
 static void uv__fs_done(struct uv__work* w, int status) {
   uv_fs_t* req;
 
@@ -999,7 +1023,10 @@ static void uv__fs_done(struct uv__work* w, int status) {
     req->result = -ECANCELED;
   }
 
+  char* type = FS_TYPE_NAME[req->fs_type];
+  printf("FS %s -- RUN CALLBACK -- START\n\n", type);
   req->cb(req);
+  printf("FS %s -- RUN CALLBACK -- END\n\n\n", type);
 }
 
 
@@ -1011,7 +1038,7 @@ int uv_fs_access(uv_loop_t* loop,
   INIT(ACCESS);
   PATH;
   req->flags = flags;
-  POST;
+  POST(ACCESS);
 }
 
 
@@ -1023,7 +1050,7 @@ int uv_fs_chmod(uv_loop_t* loop,
   INIT(CHMOD);
   PATH;
   req->mode = mode;
-  POST;
+  POST(CHMOD);
 }
 
 
@@ -1037,14 +1064,14 @@ int uv_fs_chown(uv_loop_t* loop,
   PATH;
   req->uid = uid;
   req->gid = gid;
-  POST;
+  POST(CHOWN);
 }
 
 
 int uv_fs_close(uv_loop_t* loop, uv_fs_t* req, uv_file file, uv_fs_cb cb) {
   INIT(CLOSE);
   req->file = file;
-  POST;
+  POST(CLOSE);
 }
 
 
@@ -1056,7 +1083,7 @@ int uv_fs_fchmod(uv_loop_t* loop,
   INIT(FCHMOD);
   req->file = file;
   req->mode = mode;
-  POST;
+  POST(FCHMOD);
 }
 
 
@@ -1070,28 +1097,28 @@ int uv_fs_fchown(uv_loop_t* loop,
   req->file = file;
   req->uid = uid;
   req->gid = gid;
-  POST;
+  POST(FCHOWN);
 }
 
 
 int uv_fs_fdatasync(uv_loop_t* loop, uv_fs_t* req, uv_file file, uv_fs_cb cb) {
   INIT(FDATASYNC);
   req->file = file;
-  POST;
+  POST(FDATASYNC);
 }
 
 
 int uv_fs_fstat(uv_loop_t* loop, uv_fs_t* req, uv_file file, uv_fs_cb cb) {
   INIT(FSTAT);
   req->file = file;
-  POST;
+  POST(FSTAT);
 }
 
 
 int uv_fs_fsync(uv_loop_t* loop, uv_fs_t* req, uv_file file, uv_fs_cb cb) {
   INIT(FSYNC);
   req->file = file;
-  POST;
+  POST(FSYNC);
 }
 
 
@@ -1103,7 +1130,7 @@ int uv_fs_ftruncate(uv_loop_t* loop,
   INIT(FTRUNCATE);
   req->file = file;
   req->off = off;
-  POST;
+  POST(FTRUNCATE);
 }
 
 
@@ -1117,14 +1144,14 @@ int uv_fs_futime(uv_loop_t* loop,
   req->file = file;
   req->atime = atime;
   req->mtime = mtime;
-  POST;
+  POST(FUTIME);
 }
 
 
 int uv_fs_lstat(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(LSTAT);
   PATH;
-  POST;
+  POST(LSTAT);
 }
 
 
@@ -1135,7 +1162,7 @@ int uv_fs_link(uv_loop_t* loop,
                uv_fs_cb cb) {
   INIT(LINK);
   PATH2;
-  POST;
+  POST(LINK);
 }
 
 
@@ -1147,7 +1174,7 @@ int uv_fs_mkdir(uv_loop_t* loop,
   INIT(MKDIR);
   PATH;
   req->mode = mode;
-  POST;
+  POST(MKDIR);
 }
 
 
@@ -1162,7 +1189,7 @@ int uv_fs_mkdtemp(uv_loop_t* loop,
       uv__req_unregister(loop, req);
     return -ENOMEM;
   }
-  POST;
+  POST(MKDTEMP);
 }
 
 
@@ -1176,7 +1203,7 @@ int uv_fs_open(uv_loop_t* loop,
   PATH;
   req->flags = flags;
   req->mode = mode;
-  POST;
+  POST(OPEN);
 }
 
 
@@ -1206,7 +1233,7 @@ int uv_fs_read(uv_loop_t* loop, uv_fs_t* req,
   memcpy(req->bufs, bufs, nbufs * sizeof(*bufs));
 
   req->off = off;
-  POST;
+  POST(READ);
 }
 
 
@@ -1218,7 +1245,7 @@ int uv_fs_scandir(uv_loop_t* loop,
   INIT(SCANDIR);
   PATH;
   req->flags = flags;
-  POST;
+  POST(SCANDIR);
 }
 
 
@@ -1228,7 +1255,7 @@ int uv_fs_readlink(uv_loop_t* loop,
                    uv_fs_cb cb) {
   INIT(READLINK);
   PATH;
-  POST;
+  POST(READLINK);
 }
 
 
@@ -1238,7 +1265,7 @@ int uv_fs_realpath(uv_loop_t* loop,
                   uv_fs_cb cb) {
   INIT(REALPATH);
   PATH;
-  POST;
+  POST(REALPATH);
 }
 
 
@@ -1249,14 +1276,14 @@ int uv_fs_rename(uv_loop_t* loop,
                  uv_fs_cb cb) {
   INIT(RENAME);
   PATH2;
-  POST;
+  POST(RENAME);
 }
 
 
 int uv_fs_rmdir(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(RMDIR);
   PATH;
-  POST;
+  POST(RMDIR);
 }
 
 
@@ -1272,14 +1299,14 @@ int uv_fs_sendfile(uv_loop_t* loop,
   req->file = out_fd;
   req->off = off;
   req->bufsml[0].len = len;
-  POST;
+  POST(SENDFILE);
 }
 
 
 int uv_fs_stat(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(STAT);
   PATH;
-  POST;
+  POST(STAT);
 }
 
 
@@ -1292,14 +1319,14 @@ int uv_fs_symlink(uv_loop_t* loop,
   INIT(SYMLINK);
   PATH2;
   req->flags = flags;
-  POST;
+  POST(SYMLINK);
 }
 
 
 int uv_fs_unlink(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(UNLINK);
   PATH;
-  POST;
+  POST(UNLINK);
 }
 
 
@@ -1313,7 +1340,7 @@ int uv_fs_utime(uv_loop_t* loop,
   PATH;
   req->atime = atime;
   req->mtime = mtime;
-  POST;
+  POST(UTIME);
 }
 
 
@@ -1344,7 +1371,7 @@ int uv_fs_write(uv_loop_t* loop,
   memcpy(req->bufs, bufs, nbufs * sizeof(*bufs));
 
   req->off = off;
-  POST;
+  POST(WRITE);
 }
 
 
