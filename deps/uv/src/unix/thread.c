@@ -72,7 +72,7 @@ int uv_thread_create(uv_thread_t *tid, void (*entry)(void *arg), void *arg) {
   attr = NULL;
 #endif
 
-  printf("SPAWN THREAD\n\n");
+  uv_demo_print("SPAWN THREAD", INIT | MAIN);
   err = pthread_create(tid, attr, (void*(*)(void*)) entry, arg);
 
   if (attr != NULL)
