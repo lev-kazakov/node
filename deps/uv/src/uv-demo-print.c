@@ -30,11 +30,11 @@ void uv_demo_print(const char* message, const unsigned int flags) {
   if (flags & INIT && flags & MAIN)
     format = GRN "INIT: %s" CYN "|\n";
   else if (flags & INIT && flags & THREAD_POOL)
-    format = "                                  " CYN "|" MAG "   INIT: %s\n";
+    format = "                                                " CYN "|" MAG "   INIT: %s\n";
   else if (flags & DONE && flags & MAIN)
     format = GRN "DONE: %s" CYN "|\n";
   else if (flags & DONE && flags & THREAD_POOL)
-    format = "                                  " CYN "|" MAG "   DONE: %s\n";
+    format = "                                                " CYN "|" MAG "   DONE: %s\n";
 
   printf(format, placeholder);
 }

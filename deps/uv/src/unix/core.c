@@ -534,7 +534,6 @@ skip:
 
 
 int uv__close_nocheckstdio(int fd) {
-  printf("    FS CLOSE -- START\n\n");
   int saved_errno;
   int rc;
 
@@ -542,9 +541,7 @@ int uv__close_nocheckstdio(int fd) {
 
   saved_errno = errno;
 
-  printf("    FS CLOSE -- BLOCK, SUSPEND\n\n");
   rc = close(fd);
-  printf("    FS CLOSE -- WAKE UP\n\n");
 
   if (rc == -1) {
     rc = -errno;
@@ -553,7 +550,6 @@ int uv__close_nocheckstdio(int fd) {
     errno = saved_errno;
   }
 
-  printf("    FS CLOSE -- END\n\n\n");
   return rc;
 }
 

@@ -65,6 +65,8 @@
     req->type = UV_FS;                                                        \
     if (cb != NULL) {                                                         \
       uv__req_init(loop, req, UV_FS);                                         \
+    } else {                                                                  \
+      req->data = "sync";                                                     \
     }                                                                         \
     req->fs_type = UV_FS_ ## subtype;                                         \
     req->result = 0;                                                          \
@@ -122,8 +124,6 @@
       return 0;                                                               \
     }                                                                         \
     else {                                                                    \
-      if (print)                                                              \
-        uv_demo_print("FS "#subtype" -- DO FS JOB SYNC", INIT | MAIN);        \
       uv__fs_work(&req->work_req);                                            \
       return req->result;                                                     \
     }                                                                         \
@@ -256,7 +256,8 @@ static ssize_t uv__fs_mkdtemp(uv_fs_t* req) {
 
 
 static ssize_t uv__fs_open(uv_fs_t* req) {
-  printf("    FS OPEN -- START\n\n");
+  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+  uv_demo_print("FS OPEN", INIT | demo_print_flag);
 
   static int no_cloexec_support;
   int r;
@@ -276,9 +277,9 @@ static ssize_t uv__fs_open(uv_fs_t* req) {
   if (req->cb != NULL)
     uv_rwlock_rdlock(&req->loop->cloexec_lock);
 
-  printf("    FS OPEN -- BLOCK, SUSPEND\n\n");
+  uv_demo_print("FS OPEN -- BLOCK, SUSPEND", INIT | demo_print_flag);
   r = open(req->path, req->flags, req->mode);
-  printf("    FS OPEN -- WAKE UP\n\n");
+  uv_demo_print("FS OPEN -- WAKE UP", DONE | demo_print_flag);
 
   /* In case of failure `uv__cloexec` will leave error in `errno`,
    * so it is enough to just set `r` to `-1`.
@@ -293,13 +294,15 @@ static ssize_t uv__fs_open(uv_fs_t* req) {
   if (req->cb != NULL)
     uv_rwlock_rdunlock(&req->loop->cloexec_lock);
 
-  printf("    FS OPEN -- END\n\n\n");
+  uv_demo_print("FS OPEN", DONE | demo_print_flag);
   return r;
 }
 
 
 static ssize_t uv__fs_read(uv_fs_t* req) {
-  printf("    FS READ -- START\n\n");
+  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+  uv_demo_print("FS READ", INIT | demo_print_flag);
+
 #if defined(__linux__)
   static int no_preadv;
 #endif
@@ -316,19 +319,19 @@ static ssize_t uv__fs_read(uv_fs_t* req) {
 #endif /* defined(_AIX) */
   if (req->off < 0) {
     if (req->nbufs == 1) {
-      printf("    FS READ -- BLOCK, SUSPEND\n\n");
+      uv_demo_print("FS READ -- BLOCK, SUSPEND", INIT | demo_print_flag);
       result = read(req->file, req->bufs[0].base, req->bufs[0].len);
-      printf("    FS READ -- WAKE UP\n\n");
+      uv_demo_print("FS READ -- WAKE UP", DONE | demo_print_flag);
     } else {
-      printf("    FS READ -- BLOCK, SUSPEND\n\n");
+      uv_demo_print("FS READ -- BLOCK, SUSPEND", INIT | demo_print_flag);
       result = readv(req->file, (struct iovec *) req->bufs, req->nbufs);
-      printf("    FS READ -- WAKE UP\n\n");
+      uv_demo_print("FS READ -- WAKE UP", DONE | demo_print_flag);
     }
   } else {
     if (req->nbufs == 1) {
-      printf("    FS READ -- BLOCK, SUSPEND\n\n");
+      uv_demo_print("FS READ -- BLOCK, SUSPEND", INIT | demo_print_flag);
       result = pread(req->file, req->bufs[0].base, req->bufs[0].len, req->off);
-      printf("    FS READ -- WAKE UP\n\n");
+      uv_demo_print("FS READ -- WAKE UP", DONE | demo_print_flag);
       goto done;
     }
 
@@ -347,12 +350,12 @@ static ssize_t uv__fs_read(uv_fs_t* req) {
       result = 1;
       do {
         if (req->bufs[index].len > 0) {
-          printf("    FS READ -- BLOCK, SUSPEND\n\n");
+          uv_demo_print("FS READ -- BLOCK, SUSPEND", INIT | demo_print_flag);
           result = pread(req->file,
                          req->bufs[index].base,
                          req->bufs[index].len,
                          req->off + nread);
-          printf("    FS READ -- WAKE UP\n\n");
+          uv_demo_print("FS READ -- WAKE UP", DONE | demo_print_flag);
           if (result > 0)
             nread += result;
         }
@@ -377,7 +380,7 @@ static ssize_t uv__fs_read(uv_fs_t* req) {
   }
 
 done:
-  printf("    FS READ -- END\n\n\n");
+  uv_demo_print("FS READ", DONE | demo_print_flag);
   return result;
 }
 
@@ -888,20 +891,36 @@ static int uv__fs_lstat(const char *path, uv_stat_t *buf) {
 }
 
 
-static int uv__fs_fstat(int fd, uv_stat_t *buf) {
-  printf("    FS STAT -- START\n\n");
+static int uv__fs_fstat(uv_fs_t* req, uv_stat_t *buf) {
+  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+  uv_demo_print("FS STAT", INIT | demo_print_flag);
+
+  int fd = req->file;
   struct stat pbuf;
   int ret;
 
-  printf("    FS STAT -- BLOCK, SUSPEND\n\n");
+  uv_demo_print("FS STAT -- BLOCK, SUSPEND", INIT | demo_print_flag);
   ret = fstat(fd, &pbuf);
-  printf("    FS STAT -- WAKE UP\n\n");
+  uv_demo_print("FS STAT -- WAKE UP", DONE | demo_print_flag);
 
   if (ret == 0)
     uv__to_stat(&pbuf, buf);
 
-  printf("    FS STAT -- END\n\n\n");
+  uv_demo_print("FS STAT", DONE | demo_print_flag);
   return ret;
+}
+
+static int uv__fs_close(uv_fs_t* req) {
+  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+  uv_demo_print("FS CLOSE", INIT | demo_print_flag);
+
+  uv_demo_print("FS CLOSE -- BLOCK, SUSPEND", INIT | demo_print_flag);
+  int res = close(req->file);
+  uv_demo_print("FS CLOSE -- WAKE UP", DONE | demo_print_flag);
+
+  uv_demo_print("FS CLOSE", DONE | demo_print_flag);
+
+  return res;
 }
 
 
@@ -971,11 +990,11 @@ static void uv__fs_work(struct uv__work* w) {
     X(ACCESS, access(req->path, req->flags));
     X(CHMOD, chmod(req->path, req->mode));
     X(CHOWN, chown(req->path, req->uid, req->gid));
-    X(CLOSE, close(req->file));
+    X(CLOSE, uv__fs_close(req));
     X(FCHMOD, fchmod(req->file, req->mode));
     X(FCHOWN, fchown(req->file, req->uid, req->gid));
     X(FDATASYNC, uv__fs_fdatasync(req));
-    X(FSTAT, uv__fs_fstat(req->file, &req->statbuf));
+    X(FSTAT, uv__fs_fstat(req, &req->statbuf));
     X(FSYNC, uv__fs_fsync(req));
     X(FTRUNCATE, ftruncate(req->file, req->off));
     X(FUTIME, uv__fs_futime(req));
@@ -1025,10 +1044,14 @@ static void uv__fs_done(struct uv__work* w, int status) {
     req->result = -ECANCELED;
   }
 
-  char* type = FS_TYPE_NAME[req->fs_type];
-  printf("FS %s -- RUN CALLBACK -- START\n\n", type);
+  char* message;
+  asprintf(&message, "FS %s -- RUN CALLBACK", FS_TYPE_NAME[req->fs_type]);
+
+  uv_demo_print(message, INIT | MAIN);
   req->cb(req);
-  printf("FS %s -- RUN CALLBACK -- END\n\n\n", type);
+  uv_demo_print(message, DONE | MAIN);
+
+  free(message);
 }
 
 
