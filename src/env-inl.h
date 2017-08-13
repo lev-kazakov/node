@@ -320,7 +320,6 @@ inline Environment::Environment(IsolateData* isolate_data,
 }
 
 inline Environment::~Environment() {
-  printf("\n\n\nCLEANUP -- START\n\n\n");
   v8::HandleScope handle_scope(isolate());
 
   context()->SetAlignedPointerInEmbedderData(kContextEmbedderDataIndex,
@@ -332,7 +331,6 @@ inline Environment::~Environment() {
   delete[] heap_statistics_buffer_;
   delete[] heap_space_statistics_buffer_;
   delete[] http_parser_buffer_;
-  printf("CLEANUP -- END\n\n");
 }
 
 inline v8::Isolate* Environment::isolate() const {

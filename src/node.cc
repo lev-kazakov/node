@@ -1370,12 +1370,12 @@ MaybeLocal<Value> MakeCallback(Environment* env,
     return ret;
   }
 
-  printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- START\n\n\n");
+  uv_demo_print("RUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION", INIT | MAIN);
   if (env->tick_callback_function()->Call(process, 0, nullptr).IsEmpty()) {
-    printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- END\n\n\n");
+    uv_demo_print("RUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION", DONE | MAIN);
 	return Undefined(env->isolate());
   }
-  printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- END\n\n\n");
+  uv_demo_print("RUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION", DONE | MAIN);
 
   return ret;
 }
@@ -4553,9 +4553,9 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
       if (more == false) {
         v8_platform.PumpMessageLoop(isolate);
 
-        printf("EmitBeforeExit -- START\n\n\n");
+        uv_demo_print("Emit Before Exit", INIT | MAIN);
         EmitBeforeExit(&env);
-        printf("EmitBeforeExit -- END\n\n\n");
+        uv_demo_print("Emit Before Exit", DONE | MAIN);
 
         // Emit `beforeExit` if the loop became alive either after emitting
         // event, or after running some callbacks.
@@ -4568,10 +4568,12 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
 
   env.set_trace_sync_io(false);
 
-  printf("EmitExit -- START\n\n\n");
+  uv_demo_print("Emit Exit", INIT | MAIN);
   const int exit_code = EmitExit(&env);
-  printf("EmitExit -- END\n\n\n");
+  uv_demo_print("Emit Exit", DONE | MAIN);
   RunAtExit(&env);
+
+  uv_demo_print("CLEANUP", INIT | MAIN);
   uv_key_delete(&thread_local_env);
 
   WaitForInspectorDisconnect(&env);
@@ -4683,6 +4685,8 @@ int Start(int argc, char** argv) {
 
   delete[] exec_argv;
   exec_argv = nullptr;
+
+  uv_demo_print("CLEANUP", DONE | MAIN);
 
   return exit_code;
 }

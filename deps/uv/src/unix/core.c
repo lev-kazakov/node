@@ -340,7 +340,11 @@ int uv_loop_alive(const uv_loop_t* loop) {
 
 
 int uv_run(uv_loop_t* loop, uv_run_mode mode) {
-  printf("EVENT LOOP -- ENTER -- MODE = %s\n\n\n", mode == UV_RUN_ONCE ? "RUN_ONCE" : "RUN_NOWAIT");
+  char* message;
+
+  asprintf(&message, "EVENT LOOP -- MODE = %s", mode == UV_RUN_ONCE ? "RUN_ONCE" : "RUN_NOWAIT");
+  uv_demo_print(message, INIT | MAIN);
+  free(message);
 
   int timeout;
   int r;
@@ -348,44 +352,48 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
 
   r = uv__loop_alive(loop);
   if (!r) {
-    printf("EVENT LOOP -- NOTING TO RUN!\n\n\n");
+    uv_demo_print("EVENT LOOP -- NOTING TO RUN", INIT | DONE | MAIN);
     uv__update_time(loop);
   }
 
   while (r != 0 && loop->stop_flag == 0) {
     uv__update_time(loop);
 
-    printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- START\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN TIMEOUT CALLBACKS", INIT | MAIN);
     uv__run_timers(loop);
-    printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- END\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN TIMEOUT CALLBACKS", DONE | MAIN);
 
-    printf("EVENT LOOP -- RUN PENDING CALLBACKS -- START\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", INIT | MAIN);
     ran_pending = uv__run_pending(loop);
-    printf("EVENT LOOP -- RUN PENDING CALLBACKS -- END\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", DONE | MAIN);
 
-    printf("EVENT LOOP -- RUN IDLE CALLBACKS -- START\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN IDLE CALLBACKS", INIT | MAIN);
     uv__run_idle(loop);
-    printf("EVENT LOOP -- RUN IDLE CALLBACKS -- END\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN IDLE CALLBACKS", DONE | MAIN);
 
-    printf("EVENT LOOP -- RUN PREPARE CALLBACKS -- START\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN PREPARE CALLBACKS", INIT | MAIN);
     uv__run_prepare(loop);
-    printf("EVENT LOOP -- RUN PREPARE CALLBACKS -- END\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN PREPARE CALLBACKS", DONE | MAIN);
 
     timeout = 0;
     if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
       timeout = uv_backend_timeout(loop);
 
-    printf("EVENT LOOP -- POLL FOR I/O -- BLOCK, SUSPEND -- ACTIVE_HANDLES = %d, TIMEOUT = %d\n\n", loop->active_handles, timeout);
+    asprintf(&message, "EVENT LOOP -- POLL FOR I/O -- BLOCK -- ACTIVE_HANDLES = %d, TIMEOUT = %d", loop->active_handles, timeout);
+    uv_demo_print(message, INIT | MAIN);
+    free(message);
+
     uv__io_poll(loop, timeout);
-    printf("EVENT LOOP -- POLL FOR I/O -- WAKE UP\n\n\n");
 
-    printf("EVENT LOOP -- RUN CHECK CALLBACKS -- START\n\n\n");
+    uv_demo_print("EVENT LOOP -- POLL FOR I/O -- BLOCK", DONE | MAIN);
+
+    uv_demo_print("EVENT LOOP -- RUN CHECK CALLBACKS", INIT | MAIN);
     uv__run_check(loop);
-    printf("EVENT LOOP -- RUN CHECK CALLBACKS -- END\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN CHECK CALLBACKS", DONE | MAIN);
 
-    printf("EVENT LOOP -- RUN CLOSE CALLBACKS -- START\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN CLOSE CALLBACKS", INIT | MAIN);
     uv__run_closing_handles(loop);
-    printf("EVENT LOOP -- RUN CLOSE CALLBACKS -- END\n\n\n");
+    uv_demo_print("EVENT LOOP -- RUN CLOSE CALLBACKS", DONE | MAIN);
 
     if (mode == UV_RUN_ONCE) {
       /* UV_RUN_ONCE implies forward progress: at least one callback must have
@@ -397,9 +405,9 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
        * the check.
        */
       uv__update_time(loop);
-      printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- START\n\n\n");
+      uv_demo_print("EVENT LOOP -- RUN TIMEOUT CALLBACKS", INIT | MAIN);
       uv__run_timers(loop);
-      printf("EVENT LOOP -- RUN TIMEOUT CALLBACKS -- END\n\n\n");
+      uv_demo_print("EVENT LOOP -- RUN TIMEOUT CALLBACKS", DONE | MAIN);
     }
 
     r = uv__loop_alive(loop);
@@ -413,7 +421,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
   if (loop->stop_flag != 0)
     loop->stop_flag = 0;
 
-  printf("EVENT LOOP -- EXIT\n\n\n");
+  uv_demo_print("EVENT LOOP", DONE | MAIN);
   return r;
 }
 

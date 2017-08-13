@@ -101,9 +101,9 @@ static void uv__getaddrinfo_work(struct uv__work* w) {
 
   req = container_of(w, uv_getaddrinfo_t, work_req);
 
-  uv_demo_print("GETADDRINFO -- BLOCK, SUSPEND", INIT | THREAD_POOL);
+  uv_demo_print("GETADDRINFO -- BLOCK", INIT | THREAD_POOL);
   err = getaddrinfo(req->hostname, req->service, req->hints, &req->addrinfo);
-  uv_demo_print("GETADDRINFO -- WAKE UP", DONE | THREAD_POOL);
+  uv_demo_print("GETADDRINFO -- BLOCK", DONE | THREAD_POOL);
 
   req->retcode = uv__getaddrinfo_translate_error(err);
   uv_demo_print("GETADDRINFO", DONE | THREAD_POOL);
@@ -192,7 +192,7 @@ int uv_getaddrinfo(uv_loop_t* loop,
     req->hostname = memcpy(buf + len, hostname, hostname_len);
 
   if (cb) {
-    uv_demo_print("GETADDRINFO -- QUEUE THREAD POOL JOB", INIT | MAIN);
+    uv_demo_print("GETADDRINFO -- QUEUE THREAD POOL JOB", INIT | DONE | MAIN);
     uv__work_submit(loop,
                     &req->work_req,
                     uv__getaddrinfo_work,

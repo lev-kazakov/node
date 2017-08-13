@@ -482,7 +482,7 @@ void fs__open(uv_fs_t* req) {
   /* Setting this flag makes it possible to open a directory. */
   attributes |= FILE_FLAG_BACKUP_SEMANTICS;
 
-  printf("    FS OPEN -- BLOCK, SUSPEND\n\n");
+  printf("    FS OPEN -- BLOCK\n\n");
   file = CreateFileW(req->file.pathw,
                      access,
                      share,
@@ -490,7 +490,7 @@ void fs__open(uv_fs_t* req) {
                      disposition,
                      attributes,
                      NULL);
-  printf("    FS OPEN -- WAKE UP\n\n");
+  printf("    FS OPEN -- BLOCK\n\n");
 
   if (file == INVALID_HANDLE_VALUE) {
     DWORD error = GetLastError();
@@ -537,9 +537,9 @@ void fs__close(uv_fs_t* req) {
   VERIFY_FD(fd, req);
 
   if (fd > 2) {
-    printf("    FS CLOSE -- BLOCK, SUSPEND\n\n");
+    printf("    FS CLOSE -- BLOCK\n\n");
     result = _close(fd);
-    printf("    FS CLOSE -- WAKE UP\n\n");
+    printf("    FS CLOSE -- BLOCK\n\n");
   }
   else
     result = 0;
@@ -605,13 +605,13 @@ void fs__read(uv_fs_t* req) {
       overlapped.OffsetHigh = offset_.HighPart;
     }
 
-    printf("    FS READ -- BLOCK, SUSPEND\n\n");
+    printf("    FS READ -- BLOCK\n\n");
     result = ReadFile(handle,
                       req->fs.info.bufs[index].base,
                       req->fs.info.bufs[index].len,
                       &incremental_bytes,
                       overlapped_ptr);
-    printf("    FS READ -- WAKE UP\n\n");
+    printf("    FS READ -- BLOCK\n\n");
     bytes += incremental_bytes;
     ++index;
   } while (result && index < req->fs.info.nbufs);
@@ -1277,12 +1277,12 @@ static void fs__fstat(uv_fs_t* req) {
     return;
   }
 
-  printf("    FS STAT -- BLOCK, SUSPEND\n\n");
+  printf("    FS STAT -- BLOCK\n\n");
   if (fs__stat_handle(handle, &req->statbuf) != 0) {
     SET_REQ_WIN32_ERROR(req, GetLastError());
     return;
   }
-  printf("    FS STAT -- WAKE UP\n\n");
+  printf("    FS STAT -- BLOCK\n\n");
 
   req->ptr = &req->statbuf;
   req->result = 0;

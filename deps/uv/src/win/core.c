@@ -522,9 +522,9 @@ int uv_run(uv_loop_t *loop, uv_run_mode mode) {
     if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
       timeout = uv_backend_timeout(loop);
 
-    printf("EVENT LOOP -- POLL FOR I/O -- BLOCK, SUSPEND -- ACTIVE_HANDLES = %d, TIMEOUT = %d\n\n", loop->active_handles, timeout);
+    printf("EVENT LOOP -- POLL FOR I/O -- BLOCK -- ACTIVE_HANDLES = %d, TIMEOUT = %d\n\n", loop->active_handles, timeout);
     (*poll)(loop, timeout);
-    printf("EVENT LOOP -- POLL FOR I/O -- WAKE UP\n\n\n");
+    printf("EVENT LOOP -- POLL FOR I/O -- BLOCK\n\n\n");
 
     printf("EVENT LOOP -- RUN CHECK CALLBACKS -- START\n\n\n");
     uv_check_invoke(loop); // run immediates

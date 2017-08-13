@@ -724,13 +724,13 @@ Local<Value> AsyncWrap::MakeCallback(const Local<Function> cb,
     return ret_v;
   }
 
-  printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- START\n\n\n");
+  uv_demo_print("RUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION", INIT | MAIN);
   MaybeLocal<Value> rcheck =
       env()->tick_callback_function()->Call(env()->context(),
                                             process,
                                             0,
                                             nullptr);
-  printf("\nRUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION -- END\n\n\n");
+  uv_demo_print("RUN NEXTTICK CALLBACKS THEN MICROTASKS TILL EXHAUSTION", DONE | MAIN);
 
   // Make sure the stack unwound properly.
   CHECK_EQ(env()->current_async_id(), 0);

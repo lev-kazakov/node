@@ -9,40 +9,57 @@
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
 
-#define COLUMN_LENGTH 50
-#define COLUMN "                                                  "
-
-static int indent = 0;
+#define COLUMN_LENGTH 80
+#define COLUMN "                                                                                "
 
 void uv_demo_print(const char* message, const unsigned int flags) {
   if (flags & HEADER) {
-    printf(GRN "MAIN THREAD                                             " CYN "|  " MAG "THREAD POOL\n" RESET);
+    printf(GRN "MAIN THREAD                                                                           " CYN "|  " MAG "THREAD POOL\n" RESET);
     printf(COLUMN "      " CYN "|\n" RESET);
     return;
   }
 
-  char* format = NULL;
-  char placeholder[] = COLUMN;
+  static int main_thread_indent = 0;
+  static int thread_pool_indent = 0;
+  int index = 0;
 
-  if (flags & DONE) {
-    indent--;
+  if (flags & INIT) {
+    if (flags & MAIN) {
+      index = main_thread_indent;
+      main_thread_indent++;
+    } else if (flags & THREAD_POOL) {
+      index = thread_pool_indent;
+      thread_pool_indent++;
+    }
   }
 
-  int index = indent * 2;
+  if (flags & DONE) {
+    if (flags & MAIN) {
+      main_thread_indent--;
+      index = main_thread_indent;
+    } else if (flags & THREAD_POOL) {
+      thread_pool_indent--;
+      index = thread_pool_indent;
+    }
+  }
+
+  index *= 2;
+  char placeholder[] = COLUMN;
   while (*message && index < COLUMN_LENGTH) {
     placeholder[index] = *message;
     index++;
     message++;
   }
 
-  if (flags & INIT) {
-    indent++;
-  }
-
-  if (flags & INIT && flags & MAIN)
+  char* format;
+  if (flags & INIT && flags & DONE && flags & MAIN)
+    format = GRN "INFO: %s" CYN "|\n" RESET;
+  else if (flags & INIT && flags & MAIN)
     format = GRN "INIT: %s" CYN "|\n" RESET;
   else if (flags & DONE && flags & MAIN)
     format = GRN "DONE: %s" CYN "|\n" RESET;
+  else if (flags & INIT && flags & DONE && flags & THREAD_POOL)
+    format = COLUMN "      " CYN "|" MAG "   INFO: %s\n" RESET;
   else if (flags & INIT && flags & THREAD_POOL)
     format = COLUMN "      " CYN "|" MAG "   INIT: %s\n" RESET;
   else if (flags & DONE && flags & THREAD_POOL)
