@@ -1,68 +1,98 @@
 const net = require('net')
 const fs = require('fs')
 
-console.log(/*===================================================================*/)
-console.log("scheduling 1st resolved promise task...\n")
-Promise.resolve().then(function () {console.log("1st resolved promise task done.\n")})
+const demoPrint = string => {
+	const placeholer = new Array(57).fill(' ')
+    Array.prototype.unshift.apply(placeholer, `Userland: ${string}`.split(''))
+    placeholer[56] = '|'
+    console.log(placeholer.join(''))
+}
 
-console.log("scheduling 1st immediate task...\n")
-setImmediate(function () {console.log("1st setImmediate task done.\n")})
+demoPrint('scheduling 1st resolved promise task')
+Promise.resolve().then(() => {
+	demoPrint('1st resolved promise task done')
+})
 
-console.log("scheduling 1st nextTick task...\n")
-process.nextTick(function () {console.log("1st nextTick task done.\n")})
+demoPrint('scheduling 1st immediate task')
+setImmediate(() => {
+	demoPrint('1st setImmediate task done')
+})
 
-console.log("scheduling 1st 0-sec timer...\n")
-setTimeout(function () {console.log("1st 0-sec timer is due.\n")}, 0)
+demoPrint('scheduling 1st nextTick task')
+process.nextTick(() => {
+	demoPrint('1st nextTick task done')
+})
 
-console.log(/*===================================================================*/)
-console.log("scheduling 2nd resolved promise task...\n")
-Promise.resolve().then(function () {console.log("2nd resolved promise task done.\n")})
+demoPrint('scheduling 1st 0-sec timer')
+setTimeout(() => {
+	demoPrint('1st 0-sec timer is due')
+}, 0)
 
-console.log("scheduling 2nd immediate task...\n")
-setImmediate(function () {console.log("2nd setImmediate task done.\n")})
+demoPrint(/*===================================================================*/)
+demoPrint('scheduling 2nd resolved promise task')
+Promise.resolve().then(() => {
+	demoPrint('2nd resolved promise task done')
+})
 
-console.log("scheduling 2nd nextTick task...\n")
-process.nextTick(function () {console.log("2nd nextTick task done.\n")})
+demoPrint('scheduling 2nd immediate task')
+setImmediate(() => {
+	demoPrint('2nd setImmediate task done')
+})
 
-console.log("scheduling 2nd 0-sec timer...\n")
-setTimeout(function () {console.log("2nd 0-sec timer is due.\n")}, 0)
+demoPrint('scheduling 2nd nextTick task')
+process.nextTick(() => {
+	demoPrint('2nd nextTick task done')
+})
 
-console.log(/*===================================================================*/)
-console.log("scheduling 3rd resolved promise task...\n")
-Promise.resolve().then(function () {console.log("3rd resolved promise task done.\n")})
+demoPrint('scheduling 2nd 0-sec timer')
+setTimeout(() => {
+	demoPrint('2nd 0-sec timer is due')
+}, 0)
 
-console.log("scheduling 3rd immediate task...\n")
-setImmediate(function () {console.log("3rd setImmediate task done.\n")})
+demoPrint(/*===================================================================*/)
+demoPrint('scheduling 3rd resolved promise task')
+Promise.resolve().then(() => {
+	demoPrint('3rd resolved promise task done')
+})
 
-console.log("scheduling 3rd nextTick task...\n")
-process.nextTick(function () {console.log("3rd nextTick task done.\n")})
+demoPrint('scheduling 3rd immediate task')
+setImmediate(() => {
+	demoPrint('3rd setImmediate task done')
+})
 
-console.log("scheduling 3rd 0-sec timer...\n")
-setTimeout(function () {console.log("3rd 0-sec timer is due.\n")}, 0)
+demoPrint('scheduling 3rd nextTick task')
+process.nextTick(() => {
+	demoPrint('3rd nextTick task done')
+})
 
-console.log(/*===================================================================*/)
-console.log("scheduling a 3 sec timer...\n")
-setTimeout(function () {console.log("3 sec timer is due.\n")}, 1000)
+demoPrint('scheduling 3rd 0-sec timer')
+setTimeout(() => {
+	demoPrint('3rd 0-sec timer is due')
+}, 0)
 
-console.log("performing network I/O...\n\n")
+demoPrint('scheduling a 3 sec timer')
+setTimeout(() => {
+	demoPrint('3 sec timer is due')
+}, 1000)
+
+demoPrint('performing network I/O')
 const socket = new net.Socket()
 socket.on('error', function (err) {
 	console.error(err);
 	socket.destroy();
 })
-socket.on('data', function(data) {
-	console.log(`data recieved on socket: "${data}".\n`);
+socket.on('data', (data) => {
+	demoPrint(`data recieved on socket: "${data}"`)
 	// socket.destroy();
 });
-socket.connect(8080, function() {
-	console.log('socket connected. waiting for some data to arrive...\n')
+socket.connect(8080, () => {
+	demoPrint('socket connected. waiting for some data to arrive.')
 	// socket.write('Hello server!\n')
 });
 
-console.log("performing file I/O...\n\n")
-fs.readFile('./event_loop_demo/file.txt', function (err, data) {
-  console.log(`\nfile contents: "${data}".\n`)
+demoPrint('performing file I/O')
+fs.readFile('./event_loop_demo/file.txt', (err, data) => {
+  demoPrint(`file contents: "${data}"`)
 })
 
-console.log(/*===================================================================*/)
 //process._rawDebug()

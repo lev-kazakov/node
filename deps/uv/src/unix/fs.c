@@ -265,11 +265,18 @@ static ssize_t uv__fs_open(uv_fs_t* req) {
   /* Try O_CLOEXEC before entering locks */
   if (no_cloexec_support == 0) {
 #ifdef O_CLOEXEC
+    uv_demo_print("FS OPEN -- BLOCK, SUSPEND", INIT | demo_print_flag);
     r = open(req->path, req->flags | O_CLOEXEC, req->mode);
-    if (r >= 0)
+    uv_demo_print("FS OPEN -- WAKE UP", DONE | demo_print_flag);
+
+    if (r >= 0) {
+      uv_demo_print("FS OPEN", DONE | demo_print_flag);
       return r;
-    if (errno != EINVAL)
+    }
+    if (errno != EINVAL) {
+      uv_demo_print("FS OPEN", DONE | demo_print_flag);
       return r;
+    }
     no_cloexec_support = 1;
 #endif  /* O_CLOEXEC */
   }

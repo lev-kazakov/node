@@ -4,9 +4,9 @@
 #include <stdio.h>
 
 enum {
-  HEADER      = 1 << 0,  // enter
+  HEADER      = 1 << 0,
 
-  INIT        = 1 << 1,  // enter
+  INIT        = 1 << 1, // enter
   DONE        = 1 << 2, // exit
 
   MAIN        = 1 << 3,
