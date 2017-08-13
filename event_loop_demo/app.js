@@ -2,10 +2,10 @@ const net = require('net')
 const fs = require('fs')
 
 const demoPrint = string => {
-	const placeholer = new Array(87).fill(' ')
-    string && Array.prototype.unshift.apply(placeholer, `Userland: ${string}`.split(''))
-    placeholer[86] = '|'
-    console.log(placeholer.join(''))
+	const placeholder = new Array(87).fill(' ')
+    string && Array.prototype.unshift.apply(placeholder, `Userland: ${string}`.split(''))
+    placeholder[86] = '|'
+    console.log(placeholder.join(''))
 }
 
 demoPrint('scheduling 1st resolved promise task')
