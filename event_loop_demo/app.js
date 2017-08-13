@@ -10,7 +10,7 @@ const demoPrint = string => {
 
 demoPrint('scheduling 1st resolved promise task')
 Promise.resolve().then(() => {
-	demoPrint('running 1st resolved promise callback')
+    demoPrint('running 1st resolved promise callback')
 })
 
 demoPrint('scheduling 1st immediate task')
@@ -30,9 +30,11 @@ setTimeout(() => {
 
 demoPrint(/*===================================================================*/)
 demoPrint('scheduling 2nd resolved promise task')
-Promise.resolve().then(() => {
-	demoPrint('running 2nd resolved promise callback')
-})
+;(async () => {
+    await 'something'
+    demoPrint('running 2nd resolved promise callback')
+})()
+
 
 demoPrint('scheduling 2nd immediate task')
 setImmediate(() => {
@@ -75,6 +77,7 @@ setTimeout(() => {
 	demoPrint('running 3 sec timer callback')
 }, 1000)
 
+demoPrint(/*===================================================================*/)
 demoPrint('performing network I/O')
 const socket = new net.Socket()
 socket.on('error', function (err) {
@@ -90,11 +93,13 @@ socket.connect(8080, () => {
 	// socket.write('Hello server!\n')
 });
 
+demoPrint(/*===================================================================*/)
 demoPrint('performing file I/O')
 fs.readFile('./event_loop_demo/file.txt', (err, data) => {
   demoPrint(`file contents: "${data}"`)
 })
 
+demoPrint(/*===================================================================*/)
 let thingsLeftToDo = true
 process.on('beforeExit', () => {
     demoPrint('running "beforeExit" callback')
