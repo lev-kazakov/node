@@ -340,7 +340,7 @@ int uv_loop_alive(const uv_loop_t* loop) {
 
 
 int uv_run(uv_loop_t* loop, uv_run_mode mode) {
-  char* message;
+  char* message = NULL;
 
   asprintf(&message, "EVENT LOOP -- MODE = %s", mode == UV_RUN_ONCE ? "RUN_ONCE" : "RUN_NOWAIT");
   uv_demo_print(message, INIT | MAIN);

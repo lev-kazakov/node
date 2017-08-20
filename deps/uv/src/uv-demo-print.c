@@ -55,7 +55,7 @@ void uv_demo_print(const char* message, const unsigned int flags) {
     message++;
   }
 
-  char* format;
+  char* format = "%s";
   if (flags & INIT && flags & DONE && flags & MAIN)
     format = GRN "INFO: %s" RESET "|\n";
   else if (flags & INIT && flags & MAIN)

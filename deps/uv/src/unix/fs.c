@@ -874,46 +874,64 @@ static void uv__to_stat(struct stat* src, uv_stat_t* dst) {
 }
 
 
-static int uv__fs_stat(const char *path, uv_stat_t *buf) {
-  struct stat pbuf;
-  int ret;
-
-  ret = stat(path, &pbuf);
-  if (ret == 0)
-    uv__to_stat(&pbuf, buf);
-
-  return ret;
-}
-
-
-static int uv__fs_lstat(const char *path, uv_stat_t *buf) {
-  struct stat pbuf;
-  int ret;
-
-  ret = lstat(path, &pbuf);
-  if (ret == 0)
-    uv__to_stat(&pbuf, buf);
-
-  return ret;
-}
-
-
-static int uv__fs_fstat(uv_fs_t* req, uv_stat_t *buf) {
+static int uv__fs_stat(uv_fs_t* req, uv_stat_t *buf) {
   int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
   uv_demo_print("FS STAT", INIT | demo_print_flag);
 
-  int fd = req->file;
+  const char *path = req->path;
+
   struct stat pbuf;
   int ret;
 
   uv_demo_print("FS STAT -- BLOCK", INIT | demo_print_flag);
-  ret = fstat(fd, &pbuf);
+  ret = stat(path, &pbuf);
   uv_demo_print("FS STAT -- RESUME", DONE | demo_print_flag);
 
   if (ret == 0)
     uv__to_stat(&pbuf, buf);
 
   uv_demo_print("FS STAT", DONE | demo_print_flag);
+  return ret;
+}
+
+
+static int uv__fs_lstat(uv_fs_t* req, uv_stat_t *buf) {
+  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+  uv_demo_print("FS LSTAT", INIT | demo_print_flag);
+
+  const char *path = req->path;
+
+  struct stat pbuf;
+  int ret;
+
+  uv_demo_print("FS LSTAT -- BLOCK", INIT | demo_print_flag);
+  ret = lstat(path, &pbuf);
+  uv_demo_print("FS LSTAT -- RESUME", DONE | demo_print_flag);
+
+  if (ret == 0)
+    uv__to_stat(&pbuf, buf);
+
+  uv_demo_print("FS LSTAT", DONE | demo_print_flag);
+  return ret;
+}
+
+
+static int uv__fs_fstat(uv_fs_t* req, uv_stat_t *buf) {
+  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+  uv_demo_print("FS FSTAT", INIT | demo_print_flag);
+
+  int fd = req->file;
+  struct stat pbuf;
+  int ret;
+
+  uv_demo_print("FS FSTAT -- BLOCK", INIT | demo_print_flag);
+  ret = fstat(fd, &pbuf);
+  uv_demo_print("FS FSTAT -- RESUME", DONE | demo_print_flag);
+
+  if (ret == 0)
+    uv__to_stat(&pbuf, buf);
+
+  uv_demo_print("FS FSTAT", DONE | demo_print_flag);
   return ret;
 }
 
@@ -1005,7 +1023,7 @@ static void uv__fs_work(struct uv__work* w) {
     X(FSYNC, uv__fs_fsync(req));
     X(FTRUNCATE, ftruncate(req->file, req->off));
     X(FUTIME, uv__fs_futime(req));
-    X(LSTAT, uv__fs_lstat(req->path, &req->statbuf));
+    X(LSTAT, uv__fs_lstat(req, &req->statbuf));
     X(LINK, link(req->path, req->new_path));
     X(MKDIR, mkdir(req->path, req->mode));
     X(MKDTEMP, uv__fs_mkdtemp(req));
@@ -1017,7 +1035,7 @@ static void uv__fs_work(struct uv__work* w) {
     X(RENAME, rename(req->path, req->new_path));
     X(RMDIR, rmdir(req->path));
     X(SENDFILE, uv__fs_sendfile(req));
-    X(STAT, uv__fs_stat(req->path, &req->statbuf));
+    X(STAT, uv__fs_stat(req, &req->statbuf));
     X(SYMLINK, symlink(req->path, req->new_path));
     X(UNLINK, unlink(req->path));
     X(UTIME, uv__fs_utime(req));
@@ -1051,7 +1069,7 @@ static void uv__fs_done(struct uv__work* w, int status) {
     req->result = -ECANCELED;
   }
 
-  char* message;
+  char* message = NULL;
   asprintf(&message, "FS %s -- RUN CALLBACK", FS_TYPE_NAME[req->fs_type]);
 
   uv_demo_print(message, INIT | MAIN);
@@ -1183,7 +1201,7 @@ int uv_fs_futime(uv_loop_t* loop,
 int uv_fs_lstat(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(LSTAT);
   PATH;
-  POST(LSTAT, 0);
+  POST(LSTAT, 1);
 }
 
 
@@ -1338,7 +1356,7 @@ int uv_fs_sendfile(uv_loop_t* loop,
 int uv_fs_stat(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(STAT);
   PATH;
-  POST(STAT, 0);
+  POST(STAT, 1);
 }
 
 
