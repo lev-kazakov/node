@@ -875,43 +875,43 @@ static void uv__to_stat(struct stat* src, uv_stat_t* dst) {
 
 
 static int uv__fs_stat(uv_fs_t* req, uv_stat_t *buf) {
-  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
-  uv_demo_print("FS STAT", INIT | demo_print_flag);
+//  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+//  uv_demo_print("FS STAT", INIT | demo_print_flag);
 
   const char *path = req->path;
 
   struct stat pbuf;
   int ret;
 
-  uv_demo_print("FS STAT -- BLOCK", INIT | demo_print_flag);
+//  uv_demo_print("FS STAT -- BLOCK", INIT | demo_print_flag);
   ret = stat(path, &pbuf);
-  uv_demo_print("FS STAT -- RESUME", DONE | demo_print_flag);
+//  uv_demo_print("FS STAT -- RESUME", DONE | demo_print_flag);
 
   if (ret == 0)
     uv__to_stat(&pbuf, buf);
 
-  uv_demo_print("FS STAT", DONE | demo_print_flag);
+//  uv_demo_print("FS STAT", DONE | demo_print_flag);
   return ret;
 }
 
 
 static int uv__fs_lstat(uv_fs_t* req, uv_stat_t *buf) {
-  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
-  uv_demo_print("FS LSTAT", INIT | demo_print_flag);
+//  int demo_print_flag = strcmp(req->data, "sync") == 0 ? MAIN : THREAD_POOL;
+//  uv_demo_print("FS LSTAT", INIT | demo_print_flag);
 
   const char *path = req->path;
 
   struct stat pbuf;
   int ret;
 
-  uv_demo_print("FS LSTAT -- BLOCK", INIT | demo_print_flag);
+//  uv_demo_print("FS LSTAT -- BLOCK", INIT | demo_print_flag);
   ret = lstat(path, &pbuf);
-  uv_demo_print("FS LSTAT -- RESUME", DONE | demo_print_flag);
+//  uv_demo_print("FS LSTAT -- RESUME", DONE | demo_print_flag);
 
   if (ret == 0)
     uv__to_stat(&pbuf, buf);
 
-  uv_demo_print("FS LSTAT", DONE | demo_print_flag);
+//  uv_demo_print("FS LSTAT", DONE | demo_print_flag);
   return ret;
 }
 
@@ -1201,7 +1201,7 @@ int uv_fs_futime(uv_loop_t* loop,
 int uv_fs_lstat(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(LSTAT);
   PATH;
-  POST(LSTAT, 1);
+  POST(LSTAT, 0);
 }
 
 
@@ -1356,7 +1356,7 @@ int uv_fs_sendfile(uv_loop_t* loop,
 int uv_fs_stat(uv_loop_t* loop, uv_fs_t* req, const char* path, uv_fs_cb cb) {
   INIT(STAT);
   PATH;
-  POST(STAT, 1);
+  POST(STAT, 0);
 }
 
 
