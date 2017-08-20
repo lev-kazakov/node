@@ -3620,6 +3620,7 @@ void LoadEnvironment(Environment* env) {
   uv_demo_print("RUN MAIN MODULE", INIT | MAIN);
   f->Call(Null(env->isolate()), 1, &arg);
   uv_demo_print("RUN MAIN MODULE", DONE | MAIN);
+  uv_demo_print(NULL, LINE_BREAK);
 }
 
 static void PrintHelp() {
@@ -4554,9 +4555,10 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
       if (more == false) {
         v8_platform.PumpMessageLoop(isolate);
 
-        uv_demo_print("Emit Before Exit", INIT | MAIN);
+        uv_demo_print(NULL, LINE_BREAK);
+        uv_demo_print("Emit 'beforeExit'", INIT | MAIN);
         EmitBeforeExit(&env);
-        uv_demo_print("Emit Before Exit", DONE | MAIN);
+        uv_demo_print("Emit 'beforeExit'", DONE | MAIN);
 
         // Emit `beforeExit` if the loop became alive either after emitting
         // event, or after running some callbacks.
@@ -4569,11 +4571,13 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
 
   env.set_trace_sync_io(false);
 
-  uv_demo_print("Emit Exit", INIT | MAIN);
+  uv_demo_print(NULL, LINE_BREAK);
+  uv_demo_print("Emit 'exit'", INIT | MAIN);
   const int exit_code = EmitExit(&env);
-  uv_demo_print("Emit Exit", DONE | MAIN);
+  uv_demo_print("Emit 'exit'", DONE | MAIN);
   RunAtExit(&env);
 
+  uv_demo_print(NULL, LINE_BREAK);
   uv_demo_print("CLEANUP", INIT | MAIN);
   uv_key_delete(&thread_local_env);
 

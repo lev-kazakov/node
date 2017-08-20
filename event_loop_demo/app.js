@@ -8,11 +8,6 @@ const demoPrint = string => {
     console.log(placeholder.join(''))
 }
 
-demoPrint('scheduling 1st resolved promise task')
-Promise.resolve().then(() => {
-    demoPrint('running 1st resolved promise callback')
-})
-
 demoPrint('scheduling 1st immediate task')
 setImmediate(() => {
 	demoPrint('running 1st setImmediate callback')
@@ -28,13 +23,12 @@ setTimeout(() => {
 	demoPrint('running 1st 0-sec timer callback')
 }, 0)
 
-demoPrint(/*===================================================================*/)
-demoPrint('scheduling 2nd resolved promise task')
-;(async () => {
-    await 'something'
-    demoPrint('running 2nd resolved promise callback')
-})()
+demoPrint('scheduling 1st resolved promise task')
+Promise.resolve().then(() => {
+    demoPrint('running 1st resolved promise callback')
+})
 
+demoPrint(/*===================================================================*/)
 
 demoPrint('scheduling 2nd immediate task')
 setImmediate(() => {
@@ -51,11 +45,13 @@ setTimeout(() => {
 	demoPrint('running 2nd 0-sec timer callback')
 }, 0)
 
+demoPrint('scheduling 2nd resolved promise task')
+;(async () => {
+    await 'something'
+    demoPrint('running 2nd resolved promise callback')
+})()
+
 demoPrint(/*===================================================================*/)
-demoPrint('scheduling 3rd resolved promise task')
-Promise.resolve().then(() => {
-	demoPrint('running 3rd resolved promise callback')
-})
 
 demoPrint('scheduling 3rd immediate task')
 setImmediate(() => {
@@ -72,12 +68,20 @@ setTimeout(() => {
 	demoPrint('running 3rd 0-sec timer callback')
 }, 0)
 
+demoPrint('scheduling 3rd resolved promise task')
+Promise.resolve().then(() => {
+    demoPrint('running 3rd resolved promise callback')
+})
+
+demoPrint(/*===================================================================*/)
+
 demoPrint('scheduling a 3 sec timer')
 setTimeout(() => {
 	demoPrint('running 3 sec timer callback')
 }, 1000)
 
 demoPrint(/*===================================================================*/)
+
 demoPrint('performing network I/O')
 const socket = new net.Socket()
 socket.on('error', function (err) {
@@ -94,12 +98,14 @@ socket.connect(8080, () => {
 });
 
 demoPrint(/*===================================================================*/)
+
 demoPrint('performing file I/O')
 fs.readFile('./event_loop_demo/file.txt', (err, data) => {
   demoPrint(`file contents: "${data}"`)
 })
 
 demoPrint(/*===================================================================*/)
+
 let thingsLeftToDo = true
 process.on('beforeExit', () => {
     demoPrint('running "beforeExit" callback')
