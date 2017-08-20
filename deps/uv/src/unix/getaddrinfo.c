@@ -103,7 +103,7 @@ static void uv__getaddrinfo_work(struct uv__work* w) {
 
   uv_demo_print("GETADDRINFO -- BLOCK", INIT | THREAD_POOL);
   err = getaddrinfo(req->hostname, req->service, req->hints, &req->addrinfo);
-  uv_demo_print("GETADDRINFO -- BLOCK", DONE | THREAD_POOL);
+  uv_demo_print("GETADDRINFO -- RESUME", DONE | THREAD_POOL);
 
   req->retcode = uv__getaddrinfo_translate_error(err);
   uv_demo_print("GETADDRINFO", DONE | THREAD_POOL);

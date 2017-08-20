@@ -3615,6 +3615,7 @@ void LoadEnvironment(Environment* env) {
   Local<Value> arg = env->process_object();
 
   uv_demo_print("BOOTSTRAP", DONE | MAIN);
+  uv_demo_print(NULL, LINE_BREAK);
 
   uv_demo_print("RUN MAIN MODULE", INIT | MAIN);
   f->Call(Null(env->isolate()), 1, &arg);

@@ -385,7 +385,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
 
     uv__io_poll(loop, timeout);
 
-    uv_demo_print("EVENT LOOP -- POLL FOR I/O -- BLOCK", DONE | MAIN);
+    uv_demo_print("EVENT LOOP -- POLL FOR I/O -- RESUME", DONE | MAIN);
 
     uv_demo_print("EVENT LOOP -- RUN CHECK CALLBACKS", INIT | MAIN);
     uv__run_check(loop);
