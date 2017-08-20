@@ -82,6 +82,13 @@ setTimeout(() => {
 
 demoPrint(/*===================================================================*/)
 
+demoPrint('performing file I/O')
+fs.readFile('./event_loop_demo/file.txt', (err, data) => {
+    demoPrint(`file contents: "${data}"`)
+})
+
+demoPrint(/*===================================================================*/)
+
 demoPrint('performing network I/O')
 const socket = new net.Socket()
 socket.on('error', function (err) {
@@ -96,13 +103,6 @@ socket.connect(8080, () => {
 	demoPrint('socket connected. waiting for some data to arrive.')
 	// socket.write('Hello server!\n')
 });
-
-demoPrint(/*===================================================================*/)
-
-demoPrint('performing file I/O')
-fs.readFile('./event_loop_demo/file.txt', (err, data) => {
-  demoPrint(`file contents: "${data}"`)
-})
 
 demoPrint(/*===================================================================*/)
 

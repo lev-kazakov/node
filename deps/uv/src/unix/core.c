@@ -380,7 +380,12 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
       timeout = uv_backend_timeout(loop);
 
-    asprintf(&message, "EVENT LOOP -- POLL FOR I/O -- BLOCK -- ACTIVE_HANDLES = %d, TIMEOUT = %d", loop->active_handles, timeout);
+    int reqs = 0;
+    QUEUE* req;
+    QUEUE_FOREACH(req, &(loop)->active_reqs) {
+      reqs++;
+    }
+    asprintf(&message, "EVENT LOOP -- POLL FOR I/O -- BLOCK -- PENDING HANDLES = %d, TIMEOUT = %d", loop->active_handles + reqs, timeout);
     uv_demo_print(message, INIT | MAIN);
     free(message);
 
