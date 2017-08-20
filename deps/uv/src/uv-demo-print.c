@@ -14,8 +14,8 @@
 
 void uv_demo_print(const char* message, const unsigned int flags) {
   if (flags & HEADER) {
-    printf(GRN "MAIN THREAD                                                                           " CYN "|  " MAG "THREAD POOL\n" RESET);
-    printf(COLUMN "      " CYN "|\n" RESET);
+    printf(GRN "MAIN THREAD                                                                           " RESET "|  " MAG "THREAD POOL\n" RESET);
+    printf(COLUMN "      " RESET "|\n");
     return;
   }
 
@@ -53,17 +53,17 @@ void uv_demo_print(const char* message, const unsigned int flags) {
 
   char* format;
   if (flags & INIT && flags & DONE && flags & MAIN)
-    format = GRN "INFO: %s" CYN "|\n" RESET;
+    format = GRN "INFO: %s" RESET "|\n";
   else if (flags & INIT && flags & MAIN)
-    format = GRN "INIT: %s" CYN "|\n" RESET;
+    format = GRN "INIT: %s" RESET "|\n";
   else if (flags & DONE && flags & MAIN)
-    format = GRN "DONE: %s" CYN "|\n" RESET;
+    format = GRN "DONE: %s" RESET "|\n";
   else if (flags & INIT && flags & DONE && flags & THREAD_POOL)
-    format = COLUMN "      " CYN "|" MAG "   INFO: %s\n" RESET;
+    format = COLUMN "      " RESET "|" MAG "   INFO: %s\n" RESET;
   else if (flags & INIT && flags & THREAD_POOL)
-    format = COLUMN "      " CYN "|" MAG "   INIT: %s\n" RESET;
+    format = COLUMN "      " RESET "|" MAG "   INIT: %s\n" RESET;
   else if (flags & DONE && flags & THREAD_POOL)
-    format = COLUMN "      " CYN "|" MAG "   DONE: %s\n" RESET;
+    format = COLUMN "      " RESET "|" MAG "   DONE: %s\n" RESET;
 
   printf(format, placeholder);
 }
