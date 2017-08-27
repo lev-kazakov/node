@@ -305,10 +305,8 @@ int uv_tcp_listen(uv_tcp_t* tcp, int backlog, uv_connection_cb cb) {
   }
 #endif
 
-  uv_demo_print("LISTEN -- RUN CALLBACK", INIT | MAIN);
   if (listen(tcp->io_watcher.fd, backlog))
     return -errno;
-  uv_demo_print("LISTEN -- RUN CALLBACK", DONE | MAIN);
 
   tcp->connection_cb = cb;
   tcp->flags |= UV_HANDLE_BOUND;

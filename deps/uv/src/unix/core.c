@@ -364,17 +364,17 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     uv__run_timers(loop);
     uv_demo_print("EVENT LOOP -- RUN TIMEOUT CALLBACKS", DONE | MAIN);
 
-    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", INIT | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", INIT | MAIN);
     ran_pending = uv__run_pending(loop);
-    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", DONE | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", DONE | MAIN);
 
-    uv_demo_print("EVENT LOOP -- RUN IDLE CALLBACKS", INIT | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN IDLE CALLBACKS", INIT | MAIN);
     uv__run_idle(loop);
-    uv_demo_print("EVENT LOOP -- RUN IDLE CALLBACKS", DONE | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN IDLE CALLBACKS", DONE | MAIN);
 
-    uv_demo_print("EVENT LOOP -- RUN PREPARE CALLBACKS", INIT | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN PREPARE CALLBACKS", INIT | MAIN);
     uv__run_prepare(loop);
-    uv_demo_print("EVENT LOOP -- RUN PREPARE CALLBACKS", DONE | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN PREPARE CALLBACKS", DONE | MAIN);
 
     timeout = 0;
     if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
@@ -393,13 +393,13 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
 
     uv_demo_print("EVENT LOOP -- POLL FOR I/O -- RESUME", DONE | MAIN);
 
-    uv_demo_print("EVENT LOOP -- RUN CHECK CALLBACKS", INIT | MAIN);
+    uv_demo_print("EVENT LOOP -- RUN SET_IMMEDIATE CALLBACKS", INIT | MAIN);
     uv__run_check(loop);
-    uv_demo_print("EVENT LOOP -- RUN CHECK CALLBACKS", DONE | MAIN);
+    uv_demo_print("EVENT LOOP -- RUN SET_IMMEDIATE CALLBACKS", DONE | MAIN);
 
-    uv_demo_print("EVENT LOOP -- RUN CLOSE CALLBACKS", INIT | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN CLOSE CALLBACKS", INIT | MAIN);
     uv__run_closing_handles(loop);
-    uv_demo_print("EVENT LOOP -- RUN CLOSE CALLBACKS", DONE | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN CLOSE CALLBACKS", DONE | MAIN);
 
     if (mode == UV_RUN_ONCE) {
       /* UV_RUN_ONCE implies forward progress: at least one callback must have
@@ -555,7 +555,9 @@ int uv__close_nocheckstdio(int fd) {
 
   saved_errno = errno;
 
+//  uv_demo_print("CLOSE -- BLOCK", INIT | MAIN);
   rc = close(fd);
+//  uv_demo_print("CLOSE -- RESUME", DONE | MAIN);
 
   if (rc == -1) {
     rc = -errno;
