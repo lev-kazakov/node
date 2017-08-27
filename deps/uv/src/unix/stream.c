@@ -1155,10 +1155,12 @@ static void uv__read(uv_stream_t* stream) {
     assert(uv__stream_fd(stream) >= 0);
 
     if (!is_ipc) {
+      uv_demo_print("READ -- BLOCK", INIT | MAIN);
       do {
         nread = read(uv__stream_fd(stream), buf.base, buf.len);
       }
       while (nread < 0 && errno == EINTR);
+      uv_demo_print("READ -- RESUME", DONE | MAIN);
     } else {
       /* ipc uses recvmsg */
       msg.msg_flags = 0;
@@ -1240,7 +1242,10 @@ static void uv__read(uv_stream_t* stream) {
         msg.msg_iov = old;
       }
 #endif
+
+      uv_demo_print("READ -- RUN CALLBACK", INIT | MAIN);
       stream->read_cb(stream, nread, &buf);
+      uv_demo_print("READ -- RUN CALLBACK", DONE | MAIN);
 
       /* Return if we didn't fill the buffer, there is no more data to read. */
       if (nread < buflen) {
@@ -1380,8 +1385,10 @@ static void uv__stream_connect(uv_stream_t* stream) {
     uv__io_stop(stream->loop, &stream->io_watcher, POLLOUT);
   }
 
+  uv_demo_print("CONNECT -- RUN CALLBACK", INIT | MAIN);
   if (req->cb)
     req->cb(req, error);
+  uv_demo_print("CONNECT -- RUN CALLBACK", DONE | MAIN);
 
   if (uv__stream_fd(stream) == -1)
     return;

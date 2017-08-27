@@ -125,6 +125,7 @@ int uv__tcp_bind(uv_tcp_t* tcp,
 #endif
 
   errno = 0;
+
   if (bind(tcp->io_watcher.fd, addr, addrlen) && errno != EADDRINUSE) {
     if (errno == EAFNOSUPPORT)
       /* OSX, other BSDs and SunoS fail with EAFNOSUPPORT when binding a
@@ -132,6 +133,7 @@ int uv__tcp_bind(uv_tcp_t* tcp,
       return -EINVAL;
     return -errno;
   }
+
   tcp->delayed_error = -errno;
 
   tcp->flags |= UV_HANDLE_BOUND;
@@ -163,10 +165,12 @@ int uv__tcp_connect(uv_connect_t* req,
 
   handle->delayed_error = 0;
 
+  uv_demo_print("CONNECT -- BLOCK", INIT | MAIN);
   do {
     errno = 0;
     r = connect(uv__stream_fd(handle), addr, addrlen);
   } while (r == -1 && errno == EINTR);
+  uv_demo_print("CONNECT -- RESUME", DONE | MAIN);
 
   /* We not only check the return value, but also check the errno != 0.
    * Because in rare cases connect() will return -1 but the errno
@@ -189,7 +193,10 @@ int uv__tcp_connect(uv_connect_t* req,
   uv__req_init(handle->loop, req, UV_CONNECT);
   req->cb = cb;
   req->handle = (uv_stream_t*) handle;
+
+  uv_demo_print("CONNECT -- QUEUE CALLBACK", INIT | DONE | MAIN);
   QUEUE_INIT(&req->queue);
+
   handle->connect_req = req;
 
   uv__io_start(handle->loop, &handle->io_watcher, POLLOUT);
@@ -298,8 +305,10 @@ int uv_tcp_listen(uv_tcp_t* tcp, int backlog, uv_connection_cb cb) {
   }
 #endif
 
+  uv_demo_print("LISTEN -- RUN CALLBACK", INIT | MAIN);
   if (listen(tcp->io_watcher.fd, backlog))
     return -errno;
+  uv_demo_print("LISTEN -- RUN CALLBACK", DONE | MAIN);
 
   tcp->connection_cb = cb;
   tcp->flags |= UV_HANDLE_BOUND;
