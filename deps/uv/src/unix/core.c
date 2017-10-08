@@ -364,9 +364,11 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     uv__run_timers(loop);
     uv_demo_print("EVENT LOOP -- RUN TIMEOUT CALLBACKS", DONE | MAIN);
 
-//    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", INIT | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN DEFERRED CALLBACKS", INIT | MAIN);
     ran_pending = uv__run_pending(loop);
-//    uv_demo_print("EVENT LOOP -- RUN PENDING CALLBACKS", DONE | MAIN);
+    if (ran_pending)
+      uv_demo_print("EVENT LOOP -- RAN DEFERRED CALLBACKS", INIT | DONE | MAIN);
+//    uv_demo_print("EVENT LOOP -- RUN DEFERRED CALLBACKS", DONE | MAIN);
 
 //    uv_demo_print("EVENT LOOP -- RUN IDLE CALLBACKS", INIT | MAIN);
     uv__run_idle(loop);
@@ -385,7 +387,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     QUEUE_FOREACH(req, &(loop)->active_reqs) {
       reqs++;
     }
-    asprintf(&message, "EVENT LOOP -- POLL FOR I/O -- BLOCK -- PENDING HANDLES = %d, TIMEOUT = %d", loop->active_handles + reqs, timeout);
+    asprintf(&message, "EVENT LOOP -- POLL FOR I/O -- BLOCK -- QUEUE SIZE = %d, TIMEOUT = %d", loop->active_handles + reqs, timeout);
     uv_demo_print(message, INIT | MAIN);
     free(message);
 

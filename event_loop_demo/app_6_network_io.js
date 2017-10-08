@@ -7,8 +7,6 @@ const demoPrint = string => {
     console.log(placeholder.join(''))
 }
 
-demoPrint('performing network I/O')
-
 const socket = new net.Socket()
 
 socket.on('error', function (err) {
@@ -19,6 +17,8 @@ socket.on('error', function (err) {
 socket.on('data', (data) => {
     demoPrint(`data recieved on socket: "${data}"`)
 });
+
+demoPrint('performing network I/O')
 
 socket.connect(8080, () => {
     demoPrint('socket connected. waiting for some data to arrive.')
