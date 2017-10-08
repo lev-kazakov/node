@@ -4553,7 +4553,6 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
       more = uv_run(env.event_loop(), UV_RUN_ONCE);
 
       if (more == false) {
-        uv_demo_print("UV QUEUE IS EMPTY", INIT | DONE | MAIN);
         v8_platform.PumpMessageLoop(isolate);
 
         uv_demo_print(NULL, LINE_BREAK);
