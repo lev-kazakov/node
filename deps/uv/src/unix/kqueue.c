@@ -189,12 +189,14 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
     if (pset != NULL)
       pthread_sigmask(SIG_BLOCK, pset, NULL);
 
+    uv_demo_print("EVENT LOOP -- BLOCK FOR I/O", INIT | MAIN);
     nfds = kevent(loop->backend_fd,
                   events,
                   nevents,
                   events,
                   ARRAY_SIZE(events),
                   timeout == -1 ? NULL : &spec);
+    uv_demo_print("EVENT LOOP -- RESUME", DONE | MAIN);
 
     if (pset != NULL)
       pthread_sigmask(SIG_UNBLOCK, pset, NULL);
