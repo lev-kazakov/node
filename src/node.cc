@@ -3617,9 +3617,9 @@ void LoadEnvironment(Environment* env) {
   uv_demo_print("BOOTSTRAP", DONE | MAIN);
   uv_demo_print(NULL, LINE_BREAK);
 
-  uv_demo_print("RUN MAIN MODULE", INIT | MAIN);
+  uv_demo_print("RUN INPUT SCRIPT", INIT | MAIN);
   f->Call(Null(env->isolate()), 1, &arg);
-  uv_demo_print("RUN MAIN MODULE", DONE | MAIN);
+  uv_demo_print("RUN INPUT SCRIPT", DONE | MAIN);
   uv_demo_print(NULL, LINE_BREAK);
 }
 
@@ -4555,7 +4555,6 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
       if (more == false) {
         v8_platform.PumpMessageLoop(isolate);
 
-        uv_demo_print(NULL, LINE_BREAK);
         uv_demo_print("Emit 'beforeExit'", INIT | MAIN);
         EmitBeforeExit(&env);
         uv_demo_print("Emit 'beforeExit'", DONE | MAIN);
@@ -4565,15 +4564,12 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
         more = uv_loop_alive(env.event_loop());
         if (uv_run(env.event_loop(), UV_RUN_NOWAIT) != 0)
           more = true;
-      } else {
-        uv_demo_print(NULL, LINE_BREAK);
       }
     } while (more == true);
   }
 
   env.set_trace_sync_io(false);
 
-  uv_demo_print(NULL, LINE_BREAK);
   uv_demo_print("Emit 'exit'", INIT | MAIN);
   const int exit_code = EmitExit(&env);
   uv_demo_print("Emit 'exit'", DONE | MAIN);

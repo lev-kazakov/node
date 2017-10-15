@@ -430,6 +430,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     loop->stop_flag = 0;
 
   uv_demo_print("EVENT LOOP", DONE | MAIN);
+  uv_demo_print(NULL, LINE_BREAK);
   return r;
 }
 
