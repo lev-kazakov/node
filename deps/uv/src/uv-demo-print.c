@@ -15,6 +15,7 @@
 void uv_demo_print(const char* message, const unsigned int flags) {
   if (flags & HEADER) {
     printf(GRN "MAIN THREAD                                                                           " RESET "|  " MAG "THREAD POOL\n" RESET);
+    printf("======================================================================================|===============================\n");
     return;
   }
 
