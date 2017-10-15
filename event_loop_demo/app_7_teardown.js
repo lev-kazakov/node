@@ -1,22 +1,18 @@
-const demoPrint = string => {
-	const placeholder = new Array(87).fill(' ')
-    string && Array.prototype.unshift.apply(placeholder, `Userland: ${string}`.split(''))
-    placeholder[86] = '|'
-    console.log(placeholder.join(''))
-}
-
-let thingsLeftToDo = true
+let doStuffBeforeExit = true
 process.on('beforeExit', () => {
-    demoPrint('running "beforeExit" callback')
-    thingsLeftToDo && setTimeout(() => {
-        demoPrint('i have things left to do')
-        thingsLeftToDo = false
-    }, 0)
+    console.log('running "beforeExit" callback')
+    if (doStuffBeforeExit) {
+        console.log('scheduling 0-sec timer')
+        setTimeout(() => {
+            console.log('doing some non async stuff')
+            doStuffBeforeExit = false
+        }, 0)
+    }
 })
 
 process.on('exit', () => {
-    demoPrint('running "exit" callback')
+    console.log('running "exit" callback')
     setTimeout(() => {
-        demoPrint('will never get here :(')
+        console.log('will never get here :(')
     }, 0)
 })

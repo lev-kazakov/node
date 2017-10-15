@@ -2,9 +2,9 @@ const rl = require('readline').createInterface({ input: process.stdin })
 
 require('net')
 	.createServer((s) => { 
-		console.log('socket connected ===================\n')
+		console.info('socket connected ===================\n')
 		s.on('error', () => {
-			console.log('\n================ socket disconnected\n')
+			console.info('\n================ socket disconnected\n')
 			s.destroy()
 		})
 		rl.on('line', (input) => {

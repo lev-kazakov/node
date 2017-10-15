@@ -1,124 +1,117 @@
 const net = require('net')
 const fs = require('fs')
 
-const demoPrint = string => {
-	const placeholder = new Array(87).fill(' ')
-    string && Array.prototype.unshift.apply(placeholder, `Userland: ${string}`.split(''))
-    placeholder[86] = '|'
-    console.log(placeholder.join(''))
-}
-
-demoPrint('scheduling 1st immediate task')
+console.log('scheduling 1st immediate task')
 setImmediate(() => {
-	demoPrint('running 1st setImmediate callback')
+	console.log('running 1st setImmediate callback')
 })
 
-demoPrint('scheduling 1st nextTick task')
+console.log('scheduling 1st nextTick task')
 process.nextTick(() => {
-	demoPrint('running 1st nextTick callback')
+	console.log('running 1st nextTick callback')
 })
 
-demoPrint('scheduling 1st 0-sec timer')
+console.log('scheduling 1st 0-sec timer')
 setTimeout(() => {
-	demoPrint('running 1st 0-sec timer callback')
+	console.log('running 1st 0-sec timer callback')
 }, 0)
 
-demoPrint('scheduling 1st resolved promise task')
+console.log('scheduling 1st resolved promise task')
 Promise.resolve().then(() => {
-    demoPrint('running 1st resolved promise callback')
+    console.log('running 1st resolved promise callback')
 })
 
-demoPrint(/*===================================================================*/)
+console.log(/*===================================================================*/)
 
-demoPrint('scheduling 2nd immediate task')
+console.log('scheduling 2nd immediate task')
 setImmediate(() => {
-	demoPrint('running 2nd setImmediate callback')
+	console.log('running 2nd setImmediate callback')
 })
 
-demoPrint('scheduling 2nd nextTick task')
+console.log('scheduling 2nd nextTick task')
 process.nextTick(() => {
-	demoPrint('running 2nd nextTick callback')
+	console.log('running 2nd nextTick callback')
 })
 
-demoPrint('scheduling 2nd 0-sec timer')
+console.log('scheduling 2nd 0-sec timer')
 setTimeout(() => {
-	demoPrint('running 2nd 0-sec timer callback')
+	console.log('running 2nd 0-sec timer callback')
 }, 0)
 
-demoPrint('scheduling 2nd resolved promise task')
+console.log('scheduling 2nd resolved promise task')
 ;(async () => {
     await 'something'
-    demoPrint('running 2nd resolved promise callback')
+    console.log('running 2nd resolved promise callback')
 })()
 
-demoPrint(/*===================================================================*/)
+console.log(/*===================================================================*/)
 
-demoPrint('scheduling 3rd immediate task')
+console.log('scheduling 3rd immediate task')
 setImmediate(() => {
-	demoPrint('running 3rd setImmediate callback')
+	console.log('running 3rd setImmediate callback')
 })
 
-demoPrint('scheduling 3rd nextTick task')
+console.log('scheduling 3rd nextTick task')
 process.nextTick(() => {
-	demoPrint('running 3rd nextTick callback')
+	console.log('running 3rd nextTick callback')
 })
 
-demoPrint('scheduling 3rd 0-sec timer')
+console.log('scheduling 3rd 0-sec timer')
 setTimeout(() => {
-	demoPrint('running 3rd 0-sec timer callback')
+	console.log('running 3rd 0-sec timer callback')
 }, 0)
 
-demoPrint('scheduling 3rd resolved promise task')
+console.log('scheduling 3rd resolved promise task')
 Promise.resolve().then(() => {
-    demoPrint('running 3rd resolved promise callback')
+    console.log('running 3rd resolved promise callback')
 })
 
-demoPrint(/*===================================================================*/)
+console.log(/*===================================================================*/)
 
-demoPrint('scheduling a 3 sec timer')
+console.log('scheduling a 3 sec timer')
 setTimeout(() => {
-	demoPrint('running 3 sec timer callback')
+	console.log('running 3 sec timer callback')
 }, 1000)
 
-demoPrint(/*===================================================================*/)
+console.log(/*===================================================================*/)
 
-demoPrint('performing file I/O')
+console.log('performing file I/O')
 fs.readFile('./event_loop_demo/file.txt', (err, data) => {
-    demoPrint(`file contents: "${data}"`)
+    console.log(`file contents: "${data}"`)
 })
 
-demoPrint(/*===================================================================*/)
+console.log(/*===================================================================*/)
 
-demoPrint('performing network I/O')
+console.log('performing network I/O')
 const socket = new net.Socket()
 socket.on('error', function (err) {
 	console.error(err);
 	socket.destroy();
 })
 socket.on('data', (data) => {
-	demoPrint(`data recieved on socket: "${data}"`)
+	console.log(`data recieved on socket: "${data}"`)
 	// socket.destroy();
 });
 socket.connect(8080, () => {
-	demoPrint('socket connected. waiting for some data to arrive.')
+	console.log('socket connected. waiting for some data to arrive.')
 	// socket.write('Hello server!\n')
 });
 
-demoPrint(/*===================================================================*/)
+console.log(/*===================================================================*/)
 
 let thingsLeftToDo = true
 process.on('beforeExit', () => {
-    demoPrint('running "beforeExit" callback')
+    console.log('running "beforeExit" callback')
     thingsLeftToDo && setTimeout(() => {
-        demoPrint('i have things left to do')
+        console.log('i have things left to do')
         thingsLeftToDo = false
     }, 0)
 })
 
 process.on('exit', () => {
-    demoPrint('running "exit" callback')
+    console.log('running "exit" callback')
     setTimeout(() => {
-        demoPrint('will never get here :(')
+        console.log('will never get here :(')
     }, 0)
 })
 
