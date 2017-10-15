@@ -14,5 +14,4 @@ socket.on('data', (data) => {
 console.log('performing network I/O')
 socket.connect(8080, () => {
     console.log('socket connected. waiting for some data to arrive.')
-    // socket.write('Hello server!\n')
 });
