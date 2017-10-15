@@ -353,7 +353,6 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
 
   r = uv__loop_alive(loop);
   if (!r) {
-    uv_demo_print("EVENT LOOP -- NOTING TO RUN", INIT | DONE | MAIN);
     uv__update_time(loop);
   }
 
@@ -428,6 +427,10 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
    */
   if (loop->stop_flag != 0)
     loop->stop_flag = 0;
+
+  if (!r) {
+    uv_demo_print("EVENT LOOP -- QUEUE IS EMPTY", INIT | DONE | MAIN);
+  }
 
   uv_demo_print("EVENT LOOP", DONE | MAIN);
   uv_demo_print(NULL, LINE_BREAK);
