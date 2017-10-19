@@ -345,7 +345,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
 //  asprintf(&message, "EVENT LOOP -- MODE = %s", mode == UV_RUN_ONCE ? "RUN_ONCE" : "RUN_NOWAIT");
 //  uv_demo_print(message, INIT | MAIN);
 //  free(message);
-  uv_demo_print("EVENT LOOP", INIT | MAIN);
+  uv_demo_print("EVENT LOOP CYCLE", INIT | MAIN);
 
   int timeout;
   int r;
@@ -432,7 +432,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     uv_demo_print("EVENT LOOP -- QUEUE IS EMPTY", INIT | DONE | MAIN);
   }
 
-  uv_demo_print("EVENT LOOP", DONE | MAIN);
+  uv_demo_print("EVENT LOOP CYCLE", DONE | MAIN);
   uv_demo_print(NULL, LINE_BREAK);
   return r;
 }
