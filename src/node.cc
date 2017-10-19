@@ -3614,8 +3614,8 @@ void LoadEnvironment(Environment* env) {
   // like Node's I/O bindings may want to replace 'f' with their own function.
   Local<Value> arg = env->process_object();
 
-  uv_demo_print("BOOTSTRAP", DONE | MAIN);
-  uv_demo_print(NULL, LINE_BREAK);
+//  uv_demo_print("BOOTSTRAP", DONE | MAIN);
+//  uv_demo_print(NULL, LINE_BREAK);
 
   uv_demo_print("RUN INPUT SCRIPT", INIT | MAIN);
   f->Call(Null(env->isolate()), 1, &arg);
@@ -4576,7 +4576,7 @@ inline int Start(Isolate* isolate, IsolateData* isolate_data,
   RunAtExit(&env);
 
   uv_demo_print(NULL, LINE_BREAK);
-  uv_demo_print("CLEANUP", INIT | MAIN);
+//  uv_demo_print("CLEANUP", INIT | MAIN);
   uv_key_delete(&thread_local_env);
 
   WaitForInspectorDisconnect(&env);
@@ -4689,7 +4689,7 @@ int Start(int argc, char** argv) {
   delete[] exec_argv;
   exec_argv = nullptr;
 
-  uv_demo_print("CLEANUP", DONE | MAIN);
+//  uv_demo_print("CLEANUP", DONE | MAIN);
 
   return exit_code;
 }

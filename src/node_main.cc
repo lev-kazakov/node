@@ -96,7 +96,7 @@ namespace node {
 int main(int argc, char *argv[]) {
   uv_demo_print(NULL, HEADER);
   uv_demo_print(NULL, LINE_BREAK);
-  uv_demo_print("BOOTSTRAP", INIT | MAIN);
+//  uv_demo_print("BOOTSTRAP", INIT | MAIN);
 #if defined(__linux__)
   char** envp = environ;
   while (*envp++ != nullptr) {}
