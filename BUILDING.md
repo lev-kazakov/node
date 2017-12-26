@@ -111,10 +111,17 @@ $ ./configure
 $ make -j4
 ```
 
-Running `make` with the `-j4` flag will cause it to run 4 compilation jobs
+Alternatively, to build Node.js via [CMake](https://cmake.org/):
+```console
+$ ./configure
+$ make configure-cmake-[debug/release]
+$ cmake --build cmake-build-[debug/release] --target node -- -j 4
+```
+
+Running `make` or `cmake` with the `-j4` flag will cause it to run 4 compilation jobs
 concurrently which may significantly reduce build time. The number after `-j`
 can be changed to best suit the number of processor cores on your machine. If
-you run into problems running `make` with concurrency, try running it without
+you run into problems running `make` or `cmake` with concurrency, try running it without
 the `-j4` flag. See the
 [GNU Make Documentation](https://www.gnu.org/software/make/manual/html_node/Parallel.html)
 for more information.
