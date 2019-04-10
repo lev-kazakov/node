@@ -1181,7 +1181,6 @@
         '../src/parsing/parsing.cc',
         '../src/parsing/parsing.h',
         '../src/parsing/pattern-rewriter.cc',
-        '../src/parsing/preparse-data-format.h',
         '../src/parsing/preparse-data.cc',
         '../src/parsing/preparse-data.h',
         '../src/parsing/preparsed-scope-data.cc',

@@ -185,6 +185,13 @@ may reduce build time. For more information, see the
 Note that the above requires that `python` resolve to Python 2.6 or 2.7
 and not a newer version.
 
+Alternatively, to build Node.js via [CMake](https://cmake.org/), run:
+```console
+$ ./configure
+$ make configure-cmake-[debug/release]
+$ cmake --build cmake-build-[debug/release] --target node -- -j 4
+```
+
 After building, setting up [firewall rules](tools/macos-firewall.sh) can avoid
 popups asking to accept incoming network connections when running tests.
 

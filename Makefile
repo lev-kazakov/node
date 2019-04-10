@@ -129,6 +129,15 @@ out/Makefile: common.gypi deps/uv/uv.gyp deps/http_parser/http_parser.gyp \
               config.gypi
 	$(PYTHON) tools/gyp_node.py -f make
 
+generate-cmake-files:
+	$(PYTHON) tools/gyp_node.py -f cmake && $(PYTHON) tools/fix-cmake-lists.py
+
+configure-cmake-debug: generate-cmake-files
+	cp -f out/Debug/CMakeLists.txt .
+
+configure-cmake-release: generate-cmake-files
+	cp -f out/Release/CMakeLists.txt .
+
 config.gypi: configure configure.py
 	@if [ -x config.status ]; then \
 		./config.status; \
